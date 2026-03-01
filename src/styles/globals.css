@@ -37,6 +37,13 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-wood-primary: var(--wood-primary);
+  --color-wood-primary-foreground: var(--wood-primary-foreground);
+  --color-wood-accent: var(--wood-accent);
+  --color-wood-muted: var(--wood-muted);
+  --color-wood-border: var(--wood-border);
+  --color-wood-background: var(--wood-background);
+  --color-wood-muted-foreground: var(--wood-muted-foreground);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -76,6 +83,14 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  /* Marcenaria - tons quentes madeira */
+  --wood-primary: oklch(0.45 0.08 60);
+  --wood-primary-foreground: oklch(0.985 0 0);
+  --wood-accent: oklch(0.75 0.1 75);
+  --wood-muted: oklch(0.96 0.02 85);
+  --wood-border: oklch(0.85 0.04 75);
+  --wood-background: oklch(0.98 0.01 90);
+  --wood-muted-foreground: oklch(0.55 0.04 70);
 }
 
 .dark {
@@ -110,6 +125,14 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+  /* Marcenaria dark */
+  --wood-primary: oklch(0.65 0.1 60);
+  --wood-primary-foreground: oklch(0.145 0 0);
+  --wood-accent: oklch(0.55 0.08 70);
+  --wood-muted: oklch(0.25 0.02 60);
+  --wood-border: oklch(0.35 0.04 65);
+  --wood-background: oklch(0.18 0.02 55);
+  --wood-muted-foreground: oklch(0.65 0.04 70);
 }
 
 @layer base {

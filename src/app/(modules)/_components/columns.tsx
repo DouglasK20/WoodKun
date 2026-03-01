@@ -3,6 +3,8 @@
 import { cn } from "@/utils/cn"
 import { ColumnDef } from "@tanstack/react-table"
 
+import { DataTableColumnHeader } from "@/components/data_table"
+
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
 export type Payment = {
@@ -15,12 +17,16 @@ export type Payment = {
 export const columns: ColumnDef<Payment>[] = [
     {
         accessorKey: "id",
-        header: "ID",
+        header: ({ column }) => (
+            <DataTableColumnHeader column={column} title="ID" />
+        ),
+        enableSorting: true,
         sortDescFirst: true,
     },
     {
         accessorKey: "status",
         header: () => <div className="text-center">Status</div>,
+        enableSorting: false,
         cell: ({ row }) => {
             const status = row.original.status;
             const statusColor: Record<string, string> = {
@@ -35,11 +41,17 @@ export const columns: ColumnDef<Payment>[] = [
     },
     {
         accessorKey: "email",
-        header: "Email",
+        header: ({ column }) => (
+            <DataTableColumnHeader column={column} title="Email" />
+        ),
+        enableSorting: true,
     },
     {
         accessorKey: "amount",
-        header: () => <div className="text-center">Amount</div>,
+        header: ({ column }) => (
+            <DataTableColumnHeader column={column} title="Amount" />
+        ),
+        enableSorting: true,
         cell: ({ row }) => {
             const amount = parseFloat(row.getValue("amount"))
             const formatted = new Intl.NumberFormat("en-US", {
