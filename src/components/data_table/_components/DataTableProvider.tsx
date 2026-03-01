@@ -156,7 +156,10 @@ export function DataTableProvider<TData>({
         onColumnFiltersChange: setColumnFilters,
         onColumnPinningChange: setColumnPinning,
         onPaginationChange: (updater) => {
-            const next = updater({ pageIndex: pagination.pageIndex, pageSize: pagination.pageSize })
+            const next =
+                typeof updater === "function"
+                    ? updater({ pageIndex: pagination.pageIndex, pageSize: pagination.pageSize })
+                    : updater
             setPagination(next)
         },
         onGlobalFilterChange: setGlobalFilter,

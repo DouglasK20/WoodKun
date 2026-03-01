@@ -8,7 +8,6 @@ import {
 export function HomePage() {
     return (
         <div className="container mx-auto p-4">
-            <h1 className="text-2xl font-bold text-center mb-4">Projetos</h1>
             <DataTableProvider
                 name="projetos"
                 data={payments}
@@ -20,7 +19,7 @@ export function HomePage() {
                     data={payments}
                     searchConfig={{
                         columnIds: ["id", "email", "status"],
-                        placeholder: "Buscar por ID, email ou status…",
+                        placeholder: "Buscar…",
                     }}
                 />
             </DataTableProvider>
