@@ -1,9 +1,8 @@
 "use client"
 
-import { cn } from "@/utils/cn"
+import { DataTableColumnHeader } from "@/components/data_table/_components/DataTableColumnHeader"
 import { ColumnDef } from "@tanstack/react-table"
-
-import { DataTableColumnHeader } from "@/components/data_table"
+import { cn } from "@/utils/cn"
 
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.

@@ -1,7 +1,6 @@
 "use client"
 
 import { Table } from "@tanstack/react-table"
-
 import { Button } from "@/components/shadcn/button"
 import { cn } from "@/utils/cn"
 
@@ -20,16 +19,11 @@ export function DataTablePagination<TData>({
     const end = Math.min((pageIndex + 1) * pageSize, totalRows)
 
     return (
-        <div
-            className={cn(
-                "flex items-center justify-between gap-4 py-4",
-                className
-            )}
-        >
-            <p className="text-sm text-muted-foreground">
+        <div className={cn("flex items-center justify-between gap-4 px-1", className)}>
+            <p className="text-xs text-muted-foreground">
                 {totalRows > 0 ? (
                     <>
-                        {start}–{end} de {totalRows}
+                        Exibindo {start} a {end} de {totalRows} itens.
                     </>
                 ) : (
                     "0 resultados"

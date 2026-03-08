@@ -22,8 +22,9 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/shadcn/table"
-import { DataTablePagination } from "./data-table-pagination"
-import { DataTableToolbar } from "./data-table-toolbar"
+import { DataTablePagination } from "./_components/DataTablePagination"
+import { DataTableProvider } from "./_components/DataTableProvider"
+import { DataTableToolbar } from "./_components/DataTableToolbar"
 import { useDataTableContext } from "./_components/DataTableProvider"
 
 type SearchConfig = {
@@ -96,7 +97,7 @@ function DataTableView<TData>({
     return (
         <div className="space-y-4">
             {showSearch && hasSearchColumns && (
-                <div className="flex items-center py-4">
+                <div className="flex items-center justify-end">
                     <DataTableToolbar
                         value={globalFilter}
                         onChange={(v) => table.setGlobalFilter(v)}
@@ -120,9 +121,9 @@ function DataTableView<TData>({
                                         {header.isPlaceholder
                                             ? null
                                             : flexRender(
-                                                  header.column.columnDef.header,
-                                                  header.getContext()
-                                              )}
+                                                header.column.columnDef.header,
+                                                header.getContext()
+                                            )}
                                     </TableHead>
                                 ))}
                             </TableRow>
@@ -234,8 +235,37 @@ function DataTableStandalone<TData, TValue>({
     )
 }
 
-export function DataTable<TData, TValue>(props: DataTableProps<TData, TValue>) {
+function DataTableWithContext<TData, TValue>(props: DataTableProps<TData, TValue>) {
     const context = useDataTableContext<TData>()
+    if (!context) return null
+    return (
+        <DataTableView
+            table={context.table}
+            columns={props.columns as ColumnDef<TData, unknown>[]}
+            searchConfig={props.searchConfig}
+            showSearch={props.showSearch ?? true}
+            showPagination={props.showPagination ?? true}
+            emptyMessage={props.emptyMessage ?? "Nenhum resultado encontrado."}
+        />
+    )
+}
+
+export function DataTable<TData, TValue>(props: DataTableProps<TData, TValue>) {
+    const { name, ...rest } = props
+    const context = useDataTableContext<TData>()
+
+    if (name) {
+        return (
+            <DataTableProvider
+                name={name}
+                data={props.data}
+                columns={props.columns as ColumnDef<TData, unknown>[]}
+                searchConfig={props.searchConfig}
+            >
+                <DataTableWithContext {...props} />
+            </DataTableProvider>
+        )
+    }
 
     if (context) {
         return (
@@ -250,5 +280,5 @@ export function DataTable<TData, TValue>(props: DataTableProps<TData, TValue>) {
         )
     }
 
-    return <DataTableStandalone {...props} />
+    return <DataTableStandalone {...rest} />
 }

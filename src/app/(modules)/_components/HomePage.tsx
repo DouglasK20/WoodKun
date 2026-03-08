@@ -1,28 +1,19 @@
+import { DataTable } from "@/components/data_table/DataTable"
 import { columns } from "./columns"
 import { payments } from "./data"
-import {
-    DataTable,
-    DataTableProvider,
-} from "@/components/data_table"
 
 export function HomePage() {
     return (
         <div className="container mx-auto p-4">
-            <DataTableProvider
+            <DataTable
                 name="projetos"
                 data={payments}
                 columns={columns}
-                searchConfig={{ columnIds: ["id", "email", "status"] }}
-            >
-                <DataTable
-                    columns={columns}
-                    data={payments}
-                    searchConfig={{
-                        columnIds: ["id", "email", "status"],
-                        placeholder: "Buscar…",
-                    }}
-                />
-            </DataTableProvider>
+                searchConfig={{
+                    columnIds: ["id", "email", "status"],
+                    placeholder: "Buscar…",
+                }}
+            />
         </div>
     )
 }

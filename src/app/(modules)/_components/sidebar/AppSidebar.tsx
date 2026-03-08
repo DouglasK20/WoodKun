@@ -15,7 +15,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarRail,
   SidebarTrigger,
 } from "@/components/shadcn/sidebar"
 import {
@@ -87,7 +86,6 @@ export function AppSidebar() {
           <TooltipContent side="right">Abrir/Fechar menu</TooltipContent>
         </Tooltip>
       </SidebarFooter>
-      <SidebarRail />
     </Sidebar>
   )
 }
