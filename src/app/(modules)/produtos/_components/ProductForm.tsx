@@ -21,7 +21,7 @@ import { useProduct, useSaveProduct, type ProductResponse } from "@/hooks/querie
 import { productSchema, type ProductInput } from "@/schemas/product"
 import { ApiError } from "@/utils/apiClient"
 import { formatCurrency } from "@/utils/format"
-import { calculateMaterialsCost, calculatePrice } from "@/utils/pricing"
+import { calculateItemsTotal, calculatePrice } from "@/utils/pricing"
 
 type ProductFormProps = {
   productId?: number
@@ -97,7 +97,7 @@ function ProductFormFields({ product, materials }: ProductFormFieldsProps) {
 
   // Campo vazio vira NaN com valueAsNumber; no resumo tratamos como 0
   const toNumber = (value: number) => (Number.isFinite(value) ? value : 0)
-  const cost = calculateMaterialsCost(
+  const cost = calculateItemsTotal(
     (items ?? []).map((item) => ({
       quantity: toNumber(item.quantity),
       unitPrice: materialsById.get(item.materialId)?.unitPrice ?? 0,

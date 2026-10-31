@@ -72,7 +72,8 @@ export const quotes = mysqlTable("quotes", {
   status: mysqlEnum("status", QUOTE_STATUSES).notNull().default("draft"),
   discount: money("discount").notNull().default(0),
   notes: text("notes"),
-  validUntil: date("valid_until"),
+  // mode "string": devolve "AAAA-MM-DD" em vez de Date, evitando o dia mudar por causa de fuso horário
+  validUntil: date("valid_until", { mode: "string" }),
   ...timestamps,
 })
 
@@ -91,6 +92,7 @@ export const quoteItems = mysqlTable("quote_items", {
 })
 
 export type Customer = typeof customers.$inferSelect
+export type Quote = typeof quotes.$inferSelect
 export type Product = typeof products.$inferSelect
 export type Material = typeof materials.$inferSelect
 export type NewMaterial = typeof materials.$inferInsert

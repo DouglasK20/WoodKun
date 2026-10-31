@@ -30,6 +30,8 @@ Cada módulo segue o mesmo padrão de URL:
 - `/<modulo>/cadastro` — cadastro de um novo registro
 - `/<modulo>/cadastro?id=1` — edição do registro 1
 
+Exceção: a listagem de orçamentos fica no Início (`/`); `/orcamentos` só redireciona para lá, e o cadastro segue o padrão (`/orcamentos/cadastro?id=`).
+
 Não criar rotas dinâmicas `[id]` para edição: a página `cadastro/page.tsx` lê `searchParams.id`, busca o registro (chamando `notFound()` se o id for inválido ou não existir) e passa para o mesmo formulário.
 
 ## Arquitetura
@@ -97,7 +99,9 @@ materiais/
 ## Dados
 
 - Dinheiro sempre `decimal(10,2)` com `mode: "number"`, nunca `float`.
-- Itens de orçamento guardam cópia de descrição, unidade e preço do momento; não depender do preço atual do material.
+- Itens de orçamento guardam cópia de descrição, unidade e preço do momento; não depender do preço atual do material. Cada item é `MATERIAL` (com `materialId`) ou `PRODUCT` (com `productId`, unidade `UN` e preço = preço calculado do produto).
+- Total do orçamento = subtotal dos itens − desconto em R$ (`calculateQuoteTotal`); o desconto não pode passar do subtotal.
+- Colunas `date` usam `{ mode: "string" }` ("AAAA-MM-DD"), para o dia não mudar por fuso horário; formatar com `formatDate` (`src/utils/format.ts`).
 - Enums e labels de exibição ficam em `src/db/constants.ts` (sem importar Drizzle, para poder usar em componentes client).
 - Formatação de valores: `formatCurrency` em `src/utils/format.ts`.
 - Cálculos de preço só pelas funções de `src/utils/pricing.ts` (`roundMoney`, `calculateMaterialsCost`, `calculatePrice`), usadas tanto na API quanto na prévia do formulário. Nunca arredondar com `Math.round(x * 100) / 100` direto (erra centavos por causa do ponto flutuante).
@@ -106,4 +110,5 @@ materiais/
 ## Estilo
 
 - Cores definidas como tokens no `:root` de `src/styles/globals.css`. Usar os tokens do shadcn (`bg-primary`, `border-border`, `text-muted-foreground`, `bg-card`…), não cores fixas do Tailwind nem as classes antigas `wood-*`.
+- Cores de status: `success` (verde), `info` (azul), `destructive` (vermelho) e `muted`, ex.: `bg-success/10 text-success`.
 - Sidebar escura (marrom café), conteúdo em creme suave, tabelas e inputs em branco (`bg-card`), marrom (`primary`) só para destaque.

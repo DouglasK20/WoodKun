@@ -1,6 +1,6 @@
 // Popula o banco com dados de exemplo. Rodar com: npm run db:seed
 import { db } from "./index"
-import { customers, materials, productMaterials, products, type NewMaterial } from "./schema"
+import { customers, materials, productMaterials, products, quoteItems, quotes, type NewMaterial } from "./schema"
 
 const sampleMaterials: NewMaterial[] = [
   { name: "Chapa MDF Branco TX 15mm", description: "Chapa 2,75 x 1,85 m, dupla face", measurementUnit: "M2", unitPrice: 72.9 },
@@ -93,6 +93,36 @@ async function main() {
     console.log(`${sampleProducts.length} produtos inseridos`)
   } else {
     console.log("products já possui registros, pulando")
+  }
+
+  if ((await db.$count(quotes)) === 0) {
+    const customerIds = new Map((await db.select().from(customers)).map((c) => [c.name, c.id]))
+    const allMaterials = new Map((await db.select().from(materials)).map((m) => [m.name, m]))
+    const allProducts = new Map((await db.select().from(products)).map((p) => [p.name, p]))
+
+    // Preços fixos de exemplo: no orçamento o valor é uma cópia do momento, não o preço atual
+    const [{ id: homeOfficeId }] = await db
+      .insert(quotes)
+      .values({ customerId: customerIds.get("Mariana Souza")!, title: "Home office", status: "sent", discount: 50, validUntil: "2026-11-30" })
+      .$returningId()
+    await db.insert(quoteItems).values([
+      { quoteId: homeOfficeId, type: "PRODUCT", productId: allProducts.get("Escrivaninha 1,20m")!.id, description: "Escrivaninha 1,20m", measurementUnit: "UN", quantity: 1, unitPrice: 385.87 },
+      { quoteId: homeOfficeId, type: "PRODUCT", productId: allProducts.get("Armário aéreo 80cm")!.id, description: "Armário aéreo 80cm", measurementUnit: "UN", quantity: 2, unitPrice: 714.18 },
+    ])
+
+    const counterMdf = allMaterials.get("Compensado Naval 18mm")!
+    const counterEdge = allMaterials.get("Fita de borda PVC Branca 22mm")!
+    const [{ id: counterId }] = await db
+      .insert(quotes)
+      .values({ customerId: customerIds.get("Padaria Pão Dourado")!, title: "Balcão de atendimento", status: "draft" })
+      .$returningId()
+    await db.insert(quoteItems).values([
+      { quoteId: counterId, type: "MATERIAL", materialId: counterMdf.id, description: counterMdf.name, measurementUnit: counterMdf.measurementUnit, quantity: 4.5, unitPrice: counterMdf.unitPrice },
+      { quoteId: counterId, type: "MATERIAL", materialId: counterEdge.id, description: counterEdge.name, measurementUnit: counterEdge.measurementUnit, quantity: 18, unitPrice: counterEdge.unitPrice },
+    ])
+    console.log("2 orçamentos inseridos")
+  } else {
+    console.log("quotes já possui registros, pulando")
   }
 
   process.exit(0)

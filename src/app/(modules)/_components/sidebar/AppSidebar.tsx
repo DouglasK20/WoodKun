@@ -55,7 +55,8 @@ export function AppSidebar() {
                 const Icon = item.icon
                 const isActive =
                   item.href === "/"
-                    ? pathname === "/"
+                    // O Início é a listagem de orçamentos, então também fica ativo no cadastro de orçamento
+                    ? pathname === "/" || pathname.startsWith("/orcamentos")
                     : pathname === item.href || pathname.startsWith(item.href + "/")
                 return (
                   <SidebarMenuItem key={item.href}>

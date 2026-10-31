@@ -6,11 +6,17 @@ export function roundMoney(value: number) {
   return Math.round(Number((value * 100).toPrecision(15))) / 100
 }
 
-export function calculateMaterialsCost(items: { quantity: number; unitPrice: number }[]) {
+// Soma de quantidade × preço (custo dos materiais de um produto, subtotal de um orçamento…)
+export function calculateItemsTotal(items: { quantity: number; unitPrice: number }[]) {
   return roundMoney(items.reduce((total, item) => total + item.quantity * item.unitPrice, 0))
 }
 
 // Preço final = custo + margem de lucro (%) sobre o custo
 export function calculatePrice(cost: number, profitMargin: number) {
   return roundMoney(cost * (1 + profitMargin / 100))
+}
+
+// Total do orçamento = subtotal − desconto (nunca negativo)
+export function calculateQuoteTotal(subtotal: number, discount: number) {
+  return roundMoney(Math.max(subtotal - discount, 0))
 }

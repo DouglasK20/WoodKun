@@ -1,9 +1,25 @@
-import { HomePage } from "./_components/HomePage";
+import Link from "next/link"
+import { Plus } from "lucide-react"
 
-export default function Page() {
+import { Button } from "@/components/shadcn/button"
+import { QuotesTable } from "./orcamentos/_components/QuotesTable"
+
+// Início = listagem de orçamentos. Os dados são buscados no client pela API (React Query)
+export default function HomePage() {
   return (
-    <div>
-      <HomePage />
+    <div className="space-y-4">
+      <h1 className="text-2xl font-bold">Orçamentos</h1>
+
+      <QuotesTable
+        toolbarActions={
+          <Button asChild>
+            <Link href="/orcamentos/cadastro">
+              <Plus />
+              Novo orçamento
+            </Link>
+          </Button>
+        }
+      />
     </div>
   )
 }

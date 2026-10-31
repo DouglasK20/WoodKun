@@ -4,7 +4,7 @@ import { db } from "@/db"
 import { materials, productMaterials, products } from "@/db/schema"
 import type { ProductInput } from "@/schemas/product"
 import { isForeignKeyError } from "@/utils/dbErrors"
-import { calculateMaterialsCost, calculatePrice, roundMoney } from "@/utils/pricing"
+import { calculateItemsTotal, calculatePrice, roundMoney } from "@/utils/pricing"
 
 // Lista com custo calculado no próprio banco: um LEFT JOIN com os materiais e SUM(quantidade × preço) por produto
 export async function listProducts() {
@@ -45,7 +45,7 @@ export async function getProduct(id: number) {
     .where(eq(productMaterials.productId, id))
     .orderBy(asc(productMaterials.id))
 
-  const materialsCost = calculateMaterialsCost(items)
+  const materialsCost = calculateItemsTotal(items)
 
   return {
     ...product,

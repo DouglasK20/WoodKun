@@ -17,8 +17,9 @@ O WoodKun ajuda a montar orçamentos de móveis planejados a partir dos materiai
 | Materiais: listagem, cadastro, edição e exclusão | ✅ Pronto |
 | Clientes: listagem e cadastro, com busca de endereço pelo CEP e validação de CPF/CNPJ | ✅ Pronto |
 | Produtos: cadastro com lista de materiais e cálculo do valor final | ✅ Pronto |
-| Orçamentos: itens com quantidade e valor editáveis, exportação em PDF/CSV | 📋 Planejado |
-| Início: listagem de orçamentos com filtros | 📋 Planejado |
+| Orçamentos: itens (materiais ou produtos) com preço congelado, quantidade e valor editáveis, desconto e status | ✅ Pronto |
+| Início: listagem de orçamentos com busca e filtro por status | ✅ Pronto |
+| Exportação de orçamentos em PDF e CSV | 📋 Planejado |
 | Imagens de materiais e produtos | 📋 Planejado |
 
 ## Tecnologias
@@ -79,7 +80,7 @@ Tela → hook do React Query → API REST → service → Drizzle → MySQL
 ```
 src/
 ├── app/
-│   ├── (modules)/          telas do sistema (/materiais, /clientes…)
+│   ├── (modules)/          telas do sistema (/, /orcamentos, /clientes…)
 │   └── api/                rotas da API REST (/api/materials…)
 ├── components/             componentes compartilhados (DataTable, shadcn)
 ├── db/                     schema do banco, conexão, constantes e seed
