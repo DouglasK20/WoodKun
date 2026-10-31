@@ -1,8 +1,25 @@
+import Link from "next/link"
+import { Plus } from "lucide-react"
+
+import { Button } from "@/components/shadcn/button"
+import { ProductsTable } from "./_components/ProductsTable"
+
+// Os dados são buscados no client pela API (React Query), a página só monta a estrutura
 export default function ProductsPage() {
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Produtos</h1>
-      <p className="text-muted-foreground">Página de produtos em construção.</p>
+    <div className="space-y-4">
+      <h1 className="text-2xl font-bold">Produtos</h1>
+
+      <ProductsTable
+        toolbarActions={
+          <Button asChild>
+            <Link href="/produtos/cadastro">
+              <Plus />
+              Novo produto
+            </Link>
+          </Button>
+        }
+      />
     </div>
   )
 }

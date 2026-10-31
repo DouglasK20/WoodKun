@@ -7,6 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { LoaderCircle } from "lucide-react"
 
 import { Field } from "@/components/form/Field"
+import { FormSection } from "@/components/form/FormSection"
 import { NativeSelect } from "@/components/form/NativeSelect"
 import { Button } from "@/components/shadcn/button"
 import { Input } from "@/components/shadcn/input"
@@ -120,7 +121,7 @@ function CustomerFormFields({ customer }: { customer?: CustomerResponse }) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="max-w-3xl space-y-6">
-      <Section title="Dados do cliente">
+      <FormSection title="Dados do cliente">
         <Field label="Nome" htmlFor="name" error={errors.name?.message} className="sm:col-span-4">
           <Input id="name" placeholder="Nome completo ou razão social" {...register("name")} />
         </Field>
@@ -141,9 +142,9 @@ function CustomerFormFields({ customer }: { customer?: CustomerResponse }) {
         <Field label="E-mail" htmlFor="email" error={errors.email?.message} className="sm:col-span-4">
           <Input id="email" type="email" placeholder="cliente@email.com" {...register("email")} />
         </Field>
-      </Section>
+      </FormSection>
 
-      <Section title="Endereço" description="Digite o CEP para preencher o endereço automaticamente.">
+      <FormSection title="Endereço" description="Digite o CEP para preencher o endereço automaticamente.">
         <Field
           label="CEP"
           htmlFor="zipCode"
@@ -197,13 +198,13 @@ function CustomerFormFields({ customer }: { customer?: CustomerResponse }) {
             ))}
           </NativeSelect>
         </Field>
-      </Section>
+      </FormSection>
 
-      <Section title="Observações">
+      <FormSection title="Observações">
         <Field label="Observações" htmlFor="notes" error={errors.notes?.message} className="sm:col-span-6">
           <Textarea id="notes" rows={3} placeholder="Preferências, indicação, melhor horário para contato…" {...register("notes")} />
         </Field>
-      </Section>
+      </FormSection>
 
       {saveCustomer.error && <p className="text-sm text-destructive">{saveCustomer.error.message}</p>}
 
@@ -216,24 +217,5 @@ function CustomerFormFields({ customer }: { customer?: CustomerResponse }) {
         </Button>
       </div>
     </form>
-  )
-}
-
-type SectionProps = {
-  title: string
-  description?: string
-  children: React.ReactNode
-}
-
-// Bloco do formulário com título e grid de 6 colunas (cada campo escolhe quantas ocupa)
-function Section({ title, description, children }: SectionProps) {
-  return (
-    <section className="space-y-4 rounded-lg border border-border bg-card p-5">
-      <div>
-        <h2 className="font-semibold">{title}</h2>
-        {description && <p className="text-sm text-muted-foreground">{description}</p>}
-      </div>
-      <div className="grid gap-4 sm:grid-cols-6">{children}</div>
-    </section>
   )
 }

@@ -38,7 +38,11 @@ export function useSaveMaterial() {
         method: id ? "PUT" : "POST",
         body: JSON.stringify(values),
       }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: materialKeys.all }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: materialKeys.all })
+      // O preço dos produtos é calculado a partir dos materiais, então também fica desatualizado
+      queryClient.invalidateQueries({ queryKey: ["products"] })
+    },
   })
 }
 
@@ -47,6 +51,10 @@ export function useDeleteMaterial() {
 
   return useMutation({
     mutationFn: (id: number) => apiFetch<void>(`/api/materials/${id}`, { method: "DELETE" }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: materialKeys.all }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: materialKeys.all })
+      // O preço dos produtos é calculado a partir dos materiais, então também fica desatualizado
+      queryClient.invalidateQueries({ queryKey: ["products"] })
+    },
   })
 }

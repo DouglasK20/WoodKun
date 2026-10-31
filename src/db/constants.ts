@@ -9,6 +9,13 @@ export const MEASUREMENT_UNIT_LABEL: Record<MeasurementUnit, string> = {
   M2: "Metro²",
 }
 
+// Abreviação usada ao lado de quantidades ("2,5 m²")
+export const MEASUREMENT_UNIT_SHORT: Record<MeasurementUnit, string> = {
+  UN: "un",
+  M: "m",
+  M2: "m²",
+}
+
 export const BRAZILIAN_STATES = [
   "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA",
   "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO",

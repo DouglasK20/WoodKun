@@ -91,5 +91,6 @@ export const quoteItems = mysqlTable("quote_items", {
 })
 
 export type Customer = typeof customers.$inferSelect
+export type Product = typeof products.$inferSelect
 export type Material = typeof materials.$inferSelect
 export type NewMaterial = typeof materials.$inferInsert

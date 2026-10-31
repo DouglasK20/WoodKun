@@ -16,7 +16,7 @@ O WoodKun ajuda a montar orçamentos de móveis planejados a partir dos materiai
 |---|---|
 | Materiais: listagem, cadastro, edição e exclusão | ✅ Pronto |
 | Clientes: listagem e cadastro, com busca de endereço pelo CEP e validação de CPF/CNPJ | ✅ Pronto |
-| Produtos: cadastro com lista de materiais e cálculo do valor final | 📋 Planejado |
+| Produtos: cadastro com lista de materiais e cálculo do valor final | ✅ Pronto |
 | Orçamentos: itens com quantidade e valor editáveis, exportação em PDF/CSV | 📋 Planejado |
 | Início: listagem de orçamentos com filtros | 📋 Planejado |
 | Imagens de materiais e produtos | 📋 Planejado |

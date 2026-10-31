@@ -26,6 +26,11 @@ export async function parseBody<T extends z.ZodType>(request: Request, schema: T
   return { data: result.data as z.infer<T>, errorResponse: null }
 }
 
+// 400 para um campo específico, no mesmo formato da validação do zod (o form mostra embaixo do campo)
+export function fieldError(field: string, message: string) {
+  return NextResponse.json({ error: "Dados inválidos", fieldErrors: { [field]: [message] } }, { status: 400 })
+}
+
 export function notFound(message = "Registro não encontrado") {
   return NextResponse.json({ error: message }, { status: 404 })
 }

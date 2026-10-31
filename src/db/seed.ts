@@ -1,6 +1,6 @@
 // Popula o banco com dados de exemplo. Rodar com: npm run db:seed
 import { db } from "./index"
-import { customers, materials, type NewMaterial } from "./schema"
+import { customers, materials, productMaterials, products, type NewMaterial } from "./schema"
 
 const sampleMaterials: NewMaterial[] = [
   { name: "Chapa MDF Branco TX 15mm", description: "Chapa 2,75 x 1,85 m, dupla face", measurementUnit: "M2", unitPrice: 72.9 },
@@ -35,6 +35,36 @@ const sampleCustomers = [
   },
 ]
 
+// Produtos montados pelo nome dos materiais acima (quantidade na unidade de cada material)
+const sampleProducts = [
+  {
+    name: "Escrivaninha 1,20m",
+    description: "Tampo 120 x 60 cm com uma gaveta",
+    profitMargin: 80,
+    materials: {
+      "Chapa MDF Branco TX 15mm": 1.8,
+      "Chapa MDF Branco TX 6mm": 0.3,
+      "Fita de borda PVC Branca 22mm": 9,
+      "Corrediça telescópica 45cm": 1,
+      "Puxador concha inox 96mm": 1,
+      "Parafuso 4,0 x 40mm": 1,
+    },
+  },
+  {
+    name: "Armário aéreo 80cm",
+    description: "Duas portas, 80 x 35 x 60 cm",
+    profitMargin: 100,
+    materials: {
+      "Chapa MDF Carvalho Hanover 18mm": 2.1,
+      "Chapa MDF Branco TX 6mm": 0.5,
+      "Fita de borda PVC Carvalho Hanover 22mm": 12,
+      "Dobradiça com amortecedor 35mm": 4,
+      "Puxador perfil alumínio preto": 0.8,
+      "Parafuso 4,0 x 40mm": 1,
+    },
+  },
+]
+
 async function main() {
   // Só insere se a tabela estiver vazia, para não duplicar ao rodar de novo
   if ((await db.$count(materials)) === 0) {
@@ -49,6 +79,20 @@ async function main() {
     console.log(`${sampleCustomers.length} clientes inseridos`)
   } else {
     console.log("customers já possui registros, pulando")
+  }
+
+  if ((await db.$count(products)) === 0) {
+    const materialIds = new Map((await db.select().from(materials)).map((m) => [m.name, m.id]))
+
+    for (const { materials: items, ...product } of sampleProducts) {
+      const [{ id }] = await db.insert(products).values(product).$returningId()
+      await db.insert(productMaterials).values(
+        Object.entries(items).map(([name, quantity]) => ({ productId: id, materialId: materialIds.get(name)!, quantity }))
+      )
+    }
+    console.log(`${sampleProducts.length} produtos inseridos`)
+  } else {
+    console.log("products já possui registros, pulando")
   }
 
   process.exit(0)

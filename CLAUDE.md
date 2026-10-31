@@ -50,7 +50,7 @@ tela (client) → hook React Query → apiFetch → API REST → service → Dri
 
 - **Não usar server actions** nem acessar `db`/services a partir de páginas e componentes; todo dado passa pela API.
 - **Não usar `fetch` direto nos componentes**: sempre via hook em `src/hooks/queries/`, usando `apiFetch` de `src/utils/apiClient.ts` (lança `ApiError` em respostas 4xx/5xx).
-- Mutations invalidam a chave da entidade (`invalidateQueries({ queryKey: ["materials"] })`) no `onSuccess`.
+- Mutations invalidam a chave da entidade (`invalidateQueries({ queryKey: ["materials"] })`) no `onSuccess`, e também a de entidades cujos dados dependem dela (ex.: salvar material invalida `["products"]`, porque o preço do produto vem dos materiais).
 - Tipos de resposta usam `Json<T>` (datas viram string no JSON).
 
 ### API REST
@@ -82,7 +82,8 @@ materiais/
 
 ### Formulários
 
-- Use `Field` (rótulo + campo + erro) e `NativeSelect` de `src/components/form/`; não recriar esses componentes dentro do módulo.
+- Use `Field` (rótulo + campo + erro), `FormSection` (bloco com título) e `NativeSelect` de `src/components/form/`; não recriar esses componentes dentro do módulo.
+- Listas dentro do form (ex.: materiais do produto) usam `useFieldArray`; valores calculados ao vivo usam `useWatch`.
 - Campos opcionais trafegam como `""` no form e na API; o service converte `""` em `null` antes de salvar.
 - Máscaras em `src/utils/masks.ts` (`maskPhone`, `maskDocument`, `maskZipCode`), aplicadas com `{...withMask(register("campo"), mask)}`.
 - CPF/CNPJ validados com `isValidDocument` (`src/utils/documents.ts`), que confere os dígitos verificadores.
@@ -99,6 +100,8 @@ materiais/
 - Itens de orçamento guardam cópia de descrição, unidade e preço do momento; não depender do preço atual do material.
 - Enums e labels de exibição ficam em `src/db/constants.ts` (sem importar Drizzle, para poder usar em componentes client).
 - Formatação de valores: `formatCurrency` em `src/utils/format.ts`.
+- Cálculos de preço só pelas funções de `src/utils/pricing.ts` (`roundMoney`, `calculateMaterialsCost`, `calculatePrice`), usadas tanto na API quanto na prévia do formulário. Nunca arredondar com `Math.round(x * 100) / 100` direto (erra centavos por causa do ponto flutuante).
+- Preço de produto não é salvo: é calculado a partir do preço atual dos materiais + margem de lucro.
 
 ## Estilo
 
