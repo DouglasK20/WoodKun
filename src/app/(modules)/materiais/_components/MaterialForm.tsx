@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 
+import { Field } from "@/components/form/Field"
+import { NativeSelect } from "@/components/form/NativeSelect"
 import { Button } from "@/components/shadcn/button"
 import { Input } from "@/components/shadcn/input"
 import { Skeleton } from "@/components/shadcn/skeleton"
@@ -13,10 +15,8 @@ import { MEASUREMENT_UNITS, MEASUREMENT_UNIT_LABEL } from "@/db/constants"
 import { useMaterial, useSaveMaterial, type MaterialResponse } from "@/hooks/queries/useMaterials"
 import { materialSchema, type MaterialInput } from "@/schemas/material"
 import { ApiError } from "@/utils/apiClient"
-import { cn } from "@/utils/cn"
 
 type MaterialFormProps = {
-  // Sem id = cadastro; com id = edição
   materialId?: number
 }
 
@@ -97,17 +97,13 @@ function MaterialFormFields({ material }: { material?: MaterialResponse }) {
 
       <div className="grid gap-5 sm:grid-cols-2">
         <Field label="Unidade de medida" htmlFor="measurementUnit" error={errors.measurementUnit?.message}>
-          <select
-            id="measurementUnit"
-            className="flex h-10 w-full rounded-md border border-input bg-card px-3 py-2 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 md:text-sm"
-            {...register("measurementUnit")}
-          >
+          <NativeSelect id="measurementUnit" {...register("measurementUnit")}>
             {MEASUREMENT_UNITS.map((unit) => (
               <option key={unit} value={unit}>
                 {MEASUREMENT_UNIT_LABEL[unit]}
               </option>
             ))}
-          </select>
+          </NativeSelect>
         </Field>
 
         <Field label="Valor (R$)" htmlFor="unitPrice" error={errors.unitPrice?.message}>
@@ -138,24 +134,5 @@ function MaterialFormFields({ material }: { material?: MaterialResponse }) {
         </Button>
       </div>
     </form>
-  )
-}
-
-type FieldProps = {
-  label: string
-  htmlFor: string
-  error?: string
-  children: React.ReactNode
-}
-
-function Field({ label, htmlFor, error, children }: FieldProps) {
-  return (
-    <div className="space-y-2">
-      <label htmlFor={htmlFor} className={cn("text-sm font-medium", error && "text-destructive")}>
-        {label}
-      </label>
-      {children}
-      {error && <p className="text-sm text-destructive">{error}</p>}
-    </div>
   )
 }

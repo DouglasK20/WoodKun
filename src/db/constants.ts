@@ -9,6 +9,12 @@ export const MEASUREMENT_UNIT_LABEL: Record<MeasurementUnit, string> = {
   M2: "Metro²",
 }
 
+export const BRAZILIAN_STATES = [
+  "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA",
+  "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO",
+] as const
+export type BrazilianState = (typeof BRAZILIAN_STATES)[number]
+
 export const QUOTE_STATUSES = ["draft", "sent", "approved", "rejected"] as const
 export type QuoteStatus = (typeof QUOTE_STATUSES)[number]
 

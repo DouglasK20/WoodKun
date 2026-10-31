@@ -21,9 +21,18 @@ const sampleMaterials: NewMaterial[] = [
 ]
 
 const sampleCustomers = [
-  { name: "Mariana Souza", phone: "(63) 99212-4410", email: "mariana.souza@email.com", address: "Rua 7, 120 - Centro, Araguaína/TO" },
-  { name: "Carlos Pereira", phone: "(63) 98455-7023", email: "carlos.p@email.com", address: "Av. Cônego João Lima, 845 - Araguaína/TO" },
-  { name: "Padaria Pão Dourado", phone: "(63) 3414-2290", document: "12.345.678/0001-90", address: "Rua das Mangueiras, 33 - Araguaína/TO" },
+  {
+    name: "Mariana Souza", phone: "(63) 99212-4410", email: "mariana.souza@email.com",
+    zipCode: "77803-020", street: "Rua 7", number: "120", neighborhood: "Centro", city: "Araguaína", state: "TO",
+  },
+  {
+    name: "Carlos Pereira", phone: "(63) 98455-7023", email: "carlos.p@email.com",
+    zipCode: "77804-010", street: "Avenida Cônego João Lima", number: "845", complement: "Apto 302", neighborhood: "Centro", city: "Araguaína", state: "TO",
+  },
+  {
+    name: "Padaria Pão Dourado", phone: "(63) 3414-2290", document: "12.345.678/0001-95",
+    zipCode: "77818-530", street: "Rua das Mangueiras", number: "33", neighborhood: "Setor Couto Magalhães", city: "Araguaína", state: "TO",
+  },
 ]
 
 async function main() {

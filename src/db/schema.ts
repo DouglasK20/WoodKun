@@ -26,7 +26,13 @@ export const customers = mysqlTable("customers", {
   phone: varchar("phone", { length: 20 }),
   email: varchar("email", { length: 255 }),
   document: varchar("document", { length: 18 }),
-  address: varchar("address", { length: 500 }),
+  zipCode: varchar("zip_code", { length: 9 }),
+  street: varchar("street", { length: 255 }),
+  number: varchar("number", { length: 20 }),
+  complement: varchar("complement", { length: 100 }),
+  neighborhood: varchar("neighborhood", { length: 100 }),
+  city: varchar("city", { length: 100 }),
+  state: varchar("state", { length: 2 }),
   notes: text("notes"),
   ...timestamps,
 })
@@ -84,5 +90,6 @@ export const quoteItems = mysqlTable("quote_items", {
   unitPrice: money("unit_price").notNull(),
 })
 
+export type Customer = typeof customers.$inferSelect
 export type Material = typeof materials.$inferSelect
 export type NewMaterial = typeof materials.$inferInsert

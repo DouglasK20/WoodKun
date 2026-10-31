@@ -8,6 +8,20 @@
       "when": 1793474672082,
       "tag": "0000_fair_retro_girl",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1793476988557,
+      "tag": "0001_customer_address_fields",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1793476996737,
+      "tag": "0002_drop_customer_address",
+      "breakpoints": true
     }
   ]
 }

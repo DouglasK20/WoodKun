@@ -80,6 +80,19 @@ materiais/
 
 - Botões da listagem (ex.: "Novo …") vão na prop `toolbarActions` do `DataTable`, na mesma linha da busca.
 
+### Formulários
+
+- Use `Field` (rótulo + campo + erro) e `NativeSelect` de `src/components/form/`; não recriar esses componentes dentro do módulo.
+- Campos opcionais trafegam como `""` no form e na API; o service converte `""` em `null` antes de salvar.
+- Máscaras em `src/utils/masks.ts` (`maskPhone`, `maskDocument`, `maskZipCode`), aplicadas com `{...withMask(register("campo"), mask)}`.
+- CPF/CNPJ validados com `isValidDocument` (`src/utils/documents.ts`), que confere os dígitos verificadores.
+- Busca de endereço por CEP: hook `useZipCodeLookup` (ViaCEP).
+
+## Migrations
+
+- Nunca apagar ou editar uma migration já commitada; toda mudança no schema gera uma migration nova (`npm run db:generate -- --name <descricao>`).
+- Para renomear ou trocar colunas sem o `drizzle-kit` parar com uma pergunta interativa, divida em duas migrations: primeiro só adiciona as colunas novas, depois só remove as antigas.
+
 ## Dados
 
 - Dinheiro sempre `decimal(10,2)` com `mode: "number"`, nunca `float`.
