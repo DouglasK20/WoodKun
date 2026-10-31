@@ -11,7 +11,7 @@ export default function ModulesLayout({
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center justify-end gap-2 border-b border-sidebar-border px-4 transition-[height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-16">
+        <header className="flex h-16 shrink-0 items-center justify-end gap-2 border-b border-border px-4 transition-[height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-16">
           <Button type="button" variant="outline" size="sm" className="cursor-pointer">
             Sair
           </Button>

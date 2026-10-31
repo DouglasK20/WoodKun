@@ -52,89 +52,83 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+  /* Base neutra (cinza levemente quente) + marrom madeira só como destaque.
+     Estes são os tokens que o shadcn usa (bg-primary, border, ring...) */
+  --background: oklch(0.975 0.008 80);
+  --foreground: oklch(0.22 0.006 56);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
+  --card-foreground: oklch(0.22 0.006 56);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.22 0.006 56);
+  --primary: oklch(0.48 0.09 55);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.97 0.002 75);
+  --secondary-foreground: oklch(0.27 0.006 56);
+  --muted: oklch(0.955 0.012 78);
+  --muted-foreground: oklch(0.55 0.012 58);
+  --accent: oklch(0.945 0.015 75);
+  --accent-foreground: oklch(0.27 0.006 56);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
+  --border: oklch(0.9 0.015 72);
+  --input: oklch(0.88 0.018 72);
+  --ring: oklch(0.48 0.09 55 / 40%);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
   --chart-4: oklch(0.828 0.189 84.429);
   --chart-5: oklch(0.769 0.188 70.08);
-  /* Sidebar - tom madeira mais quente e distinto do conteúdo */
-  --sidebar: oklch(0.91 0.04 72);
-  --sidebar-foreground: oklch(0.35 0.06 65);
-  --sidebar-primary: var(--wood-primary);
-  --sidebar-primary-foreground: var(--wood-primary-foreground);
-  --sidebar-accent: oklch(0.85 0.06 65);
-  --sidebar-accent-foreground: var(--wood-primary-foreground);
-  --sidebar-border: oklch(0.82 0.05 70);
-  --sidebar-ring: var(--wood-primary);
-  /* Marcenaria - tons quentes madeira */
-  --wood-primary: oklch(0.45 0.08 60);
-  --wood-primary-foreground: oklch(0.985 0 0);
+  /* Sidebar escura (marrom café): também é a moldura em volta do conteúdo */
+  --sidebar: oklch(0.27 0.035 55);
+  --sidebar-foreground: oklch(0.86 0.02 75);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: oklch(0.36 0.05 58);
+  --sidebar-accent-foreground: oklch(0.97 0.01 80);
+  --sidebar-border: oklch(0.34 0.035 55);
+  --sidebar-ring: oklch(0.7 0.1 62 / 50%);
+  /* Apelidos antigos (bg-wood-*), mantidos para não quebrar o que já usa. Prefira os tokens acima */
+  --wood-primary: var(--primary);
+  --wood-primary-foreground: var(--primary-foreground);
   --wood-accent: oklch(0.75 0.1 75);
-  --wood-muted: oklch(0.96 0.02 85);
-  --wood-border: oklch(0.85 0.04 75);
-  --wood-background: oklch(0.98 0.01 90);
-  --wood-muted-foreground: oklch(0.55 0.04 70);
+  --wood-muted: var(--muted);
+  --wood-border: var(--border);
+  --wood-background: var(--card);
+  --wood-muted-foreground: var(--muted-foreground);
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+  --background: oklch(0.17 0.005 56);
+  --foreground: oklch(0.95 0.003 75);
+  --card: oklch(0.2 0.005 56);
+  --card-foreground: oklch(0.95 0.003 75);
+  --popover: oklch(0.2 0.005 56);
+  --popover-foreground: oklch(0.95 0.003 75);
+  --primary: oklch(0.7 0.1 62);
+  --primary-foreground: oklch(0.17 0.005 56);
+  --secondary: oklch(0.26 0.006 56);
+  --secondary-foreground: oklch(0.95 0.003 75);
+  --muted: oklch(0.24 0.006 56);
+  --muted-foreground: oklch(0.7 0.01 70);
+  --accent: oklch(0.26 0.006 56);
+  --accent-foreground: oklch(0.95 0.003 75);
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
+  --ring: oklch(0.7 0.1 62 / 40%);
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);
   --chart-4: oklch(0.627 0.265 303.9);
   --chart-5: oklch(0.645 0.246 16.439);
-  /* Sidebar dark - tom madeira distinto */
-  --sidebar: oklch(0.22 0.03 55);
-  --sidebar-foreground: oklch(0.85 0.03 75);
-  --sidebar-primary: var(--wood-primary);
-  --sidebar-primary-foreground: var(--wood-primary-foreground);
-  --sidebar-accent: oklch(0.28 0.04 60);
-  --sidebar-accent-foreground: var(--wood-primary-foreground);
-  --sidebar-border: oklch(0.32 0.04 60);
-  --sidebar-ring: var(--wood-primary);
-  /* Marcenaria dark */
-  --wood-primary: oklch(0.65 0.1 60);
-  --wood-primary-foreground: oklch(0.145 0 0);
+  --sidebar: oklch(0.14 0.005 56);
+  --sidebar-foreground: oklch(0.8 0.008 70);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
+  --sidebar-accent: oklch(0.7 0.1 62 / 15%);
+  --sidebar-accent-foreground: oklch(0.82 0.08 65);
+  --sidebar-border: oklch(1 0 0 / 8%);
+  --sidebar-ring: var(--ring);
   --wood-accent: oklch(0.55 0.08 70);
-  --wood-muted: oklch(0.25 0.02 60);
-  --wood-border: oklch(0.35 0.04 65);
-  --wood-background: oklch(0.18 0.02 55);
-  --wood-muted-foreground: oklch(0.65 0.04 70);
 }
 
 @layer base {

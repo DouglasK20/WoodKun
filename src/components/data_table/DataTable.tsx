@@ -54,6 +54,7 @@ export interface DataTableProps<TData, TValue> {
   showSearch?: boolean
   showPagination?: boolean
   emptyMessage?: string
+  toolbarActions?: React.ReactNode
 }
 
 function createMultiColumnFilter<TData>(columnIds: string[]) {
@@ -74,6 +75,7 @@ type DataTableViewProps<TData> = {
   showSearch: boolean
   showPagination: boolean
   emptyMessage: string
+  toolbarActions?: React.ReactNode
 }
 
 function DataTableView<TData>({
@@ -83,6 +85,7 @@ function DataTableView<TData>({
   showSearch,
   showPagination,
   emptyMessage,
+  toolbarActions,
 }: DataTableViewProps<TData>) {
   const filterColumnIds = useMemo(() => {
     if (searchConfig?.columnIds?.length) return searchConfig.columnIds
@@ -93,16 +96,23 @@ function DataTableView<TData>({
   const searchPlaceholder = searchConfig?.placeholder ?? "Buscar…"
   const hasSearchColumns = filterColumnIds.length > 0
   const globalFilter = table.getState().globalFilter ?? ""
+  const showToolbarSearch = showSearch && hasSearchColumns
 
   return (
     <div className="space-y-4">
-      {showSearch && hasSearchColumns && (
-        <div className="flex items-center justify-end">
-          <DataTableToolbar
-            value={globalFilter}
-            onChange={(v) => table.setGlobalFilter(v)}
-            placeholder={searchPlaceholder}
-          />
+      {(showToolbarSearch || toolbarActions) && (
+        <div className="flex items-center justify-between gap-2">
+          {showToolbarSearch ? (
+            <DataTableToolbar
+              value={globalFilter}
+              onChange={(v) => table.setGlobalFilter(v)}
+              placeholder={searchPlaceholder}
+              className="w-full max-w-sm"
+            />
+          ) : (
+            <div />
+          )}
+          {toolbarActions}
         </div>
       )}
       <div className="overflow-hidden rounded-lg border border-wood-border bg-wood-background">
@@ -181,6 +191,7 @@ function DataTableStandalone<TData, TValue>({
   showSearch = true,
   showPagination = true,
   emptyMessage = "Nenhum resultado encontrado.",
+  toolbarActions,
 }: DataTableProps<TData, TValue>) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [sorting, setSorting] = useState(sortConfig?.defaultSorting ?? [])
@@ -231,6 +242,7 @@ function DataTableStandalone<TData, TValue>({
       showSearch={showSearch}
       showPagination={showPagination}
       emptyMessage={emptyMessage}
+      toolbarActions={toolbarActions}
     />
   )
 }
@@ -246,6 +258,7 @@ function DataTableWithContext<TData, TValue>(props: DataTableProps<TData, TValue
       showSearch={props.showSearch ?? true}
       showPagination={props.showPagination ?? true}
       emptyMessage={props.emptyMessage ?? "Nenhum resultado encontrado."}
+      toolbarActions={props.toolbarActions}
     />
   )
 }
@@ -276,6 +289,7 @@ export function DataTable<TData, TValue>(props: DataTableProps<TData, TValue>) {
         showSearch={props.showSearch ?? true}
         showPagination={props.showPagination ?? true}
         emptyMessage={props.emptyMessage ?? "Nenhum resultado encontrado."}
+      toolbarActions={props.toolbarActions}
       />
     )
   }

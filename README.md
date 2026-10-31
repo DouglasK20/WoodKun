@@ -1,36 +1,110 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<p align="center">
+  <img src="public/assets/Logo-Transparente-WoodKun.png" alt="WoodKun" width="160" />
+</p>
 
-## Getting Started
+<h1 align="center">WoodKun</h1>
 
-First, run the development server:
+<p align="center">Sistema de orçamentos para marcenaria</p>
+
+---
+
+O WoodKun ajuda a montar orçamentos de móveis planejados a partir dos materiais usados. Você cadastra os materiais com o preço por unidade, metro ou m², monta produtos (como uma escrivaninha) a partir desses materiais e usa materiais e produtos para montar orçamentos para seus clientes, exportando em PDF ou CSV.
+
+## Funcionalidades
+
+| Módulo | Status |
+|---|---|
+| Materiais: listagem, cadastro, edição e exclusão | ✅ Pronto |
+| Clientes: listagem e cadastro | 🚧 Em desenvolvimento |
+| Produtos: cadastro com lista de materiais e cálculo do valor final | 📋 Planejado |
+| Orçamentos: itens com quantidade e valor editáveis, exportação em PDF/CSV | 📋 Planejado |
+| Início: listagem de orçamentos com filtros | 📋 Planejado |
+| Imagens de materiais e produtos | 📋 Planejado |
+
+## Tecnologias
+
+- [Next.js 15](https://nextjs.org) (App Router) e React 19
+- [Tailwind CSS 4](https://tailwindcss.com) e [shadcn/ui](https://ui.shadcn.com)
+- [Drizzle ORM](https://orm.drizzle.team) com MySQL 8
+- [TanStack Query](https://tanstack.com/query) para buscar e atualizar dados
+- [TanStack Table](https://tanstack.com/table) para as listagens
+- [React Hook Form](https://react-hook-form.com) e [Zod](https://zod.dev) para formulários e validação
+
+## Como rodar
+
+**Pré-requisitos:** Node.js 20+ e Docker.
 
 ```bash
+# 1. Instale as dependências
+npm install
+
+# 2. Crie o arquivo de variáveis de ambiente
+cp .env.example .env
+
+# 3. Suba o MySQL (porta 3307)
+docker compose up -d
+
+# 4. Crie as tabelas e insira dados de exemplo
+npm run db:migrate
+npm run db:seed
+
+# 5. Inicie o servidor
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Acesse [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+> O MySQL usa a porta **3307** para não conflitar com outro MySQL que já esteja rodando na 3306.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Scripts
 
-## Learn More
+| Comando | O que faz |
+|---|---|
+| `npm run dev` | Servidor de desenvolvimento |
+| `npm run build` | Build de produção |
+| `npm run lint` | Verifica o código com ESLint |
+| `npm run db:generate` | Gera uma migration a partir das mudanças em `src/db/schema.ts` |
+| `npm run db:migrate` | Aplica as migrations pendentes no banco |
+| `npm run db:seed` | Insere materiais e clientes de exemplo (só em tabelas vazias) |
+| `npm run db:studio` | Abre o Drizzle Studio para visualizar o banco |
 
-To learn more about Next.js, take a look at the following resources:
+## Arquitetura
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Toda leitura e escrita de dados passa por uma API REST:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+Tela → hook do React Query → API REST → service → Drizzle → MySQL
+```
 
-## Deploy on Vercel
+```
+src/
+├── app/
+│   ├── (modules)/          telas do sistema (/materiais, /clientes…)
+│   └── api/                rotas da API REST (/api/materials…)
+├── components/             componentes compartilhados (DataTable, shadcn)
+├── db/                     schema do banco, conexão, constantes e seed
+├── hooks/queries/          hooks do React Query que chamam a API
+├── schemas/                schemas Zod, usados no formulário e na API
+├── services/               acesso ao banco, usado só pela API
+└── utils/                  helpers (formatação, cliente HTTP, API)
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### API
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Cada entidade segue o mesmo padrão. Exemplo com materiais:
+
+| Método | Rota | Resposta |
+|---|---|---|
+| `GET` | `/api/materials` | `200` com a lista |
+| `POST` | `/api/materials` | `201` com o material criado, ou `400` se os dados forem inválidos |
+| `GET` | `/api/materials/:id` | `200` com o material, ou `404` |
+| `PUT` | `/api/materials/:id` | `200` com o material atualizado, `400` ou `404` |
+| `DELETE` | `/api/materials/:id` | `204`, `404`, ou `409` se o material estiver em uso |
+
+## Convenções
+
+- **Código e banco em inglês**: arquivos, variáveis, funções, tabelas e colunas.
+- **Interface em português**: textos da tela, mensagens de erro e URLs das telas (`/materiais`, `/clientes`).
+- **Telas de cadastro**: `/<modulo>/cadastro` cria um registro novo, e `/<modulo>/cadastro?id=1` edita o registro 1.
+
+As regras completas estão no [CLAUDE.md](CLAUDE.md).
