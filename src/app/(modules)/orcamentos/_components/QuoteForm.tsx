@@ -5,7 +5,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useFieldArray, useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Plus, Trash2 } from "lucide-react"
+import { FileSpreadsheet, FileText, Plus, Trash2 } from "lucide-react"
 
 import { Field } from "@/components/form/Field"
 import { FormSection } from "@/components/form/FormSection"
@@ -88,7 +88,7 @@ function QuoteFormFields({ quote, customers, materials, products }: QuoteFormFie
     control,
     handleSubmit,
     setError,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useForm<QuoteInput>({
     resolver: zodResolver(quoteSchema),
     defaultValues: {
@@ -332,6 +332,33 @@ function QuoteFormFields({ quote, customers, materials, products }: QuoteFormFie
             <Link href="/">Cancelar</Link>
           </Button>
         </div>
+
+        {/* Exportar só existe para orçamento já salvo: os arquivos são gerados pela API a partir do banco */}
+        {quote && (
+          <section className="space-y-3 rounded-lg border border-border bg-card p-5">
+            <h2 className="font-semibold">Exportar</h2>
+            <div className="flex gap-2">
+              <Button variant="outline" className="flex-1" asChild>
+                {/* Links comuns: o navegador abre o PDF (inline) e baixa o CSV (attachment) */}
+                <a href={`/api/quotes/${quote.id}/pdf`} target="_blank" rel="noopener">
+                  <FileText />
+                  PDF
+                </a>
+              </Button>
+              <Button variant="outline" className="flex-1" asChild>
+                <a href={`/api/quotes/${quote.id}/csv`}>
+                  <FileSpreadsheet />
+                  CSV
+                </a>
+              </Button>
+            </div>
+            {isDirty && (
+              <p className="text-xs text-muted-foreground">
+                Há alterações não salvas. A exportação usa a última versão salva.
+              </p>
+            )}
+          </section>
+        )}
       </aside>
     </form>
   )

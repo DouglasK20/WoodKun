@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { ColumnDef } from "@tanstack/react-table"
-import { Pencil, Trash2 } from "lucide-react"
+import { FileText, Pencil, Trash2 } from "lucide-react"
 
 import { Button } from "@/components/shadcn/button"
 import { DataTableColumnHeader } from "@/components/data_table/_components/DataTableColumnHeader"
@@ -23,6 +23,11 @@ function QuoteActions({ quote }: { quote: QuoteListResponse }) {
 
   return (
     <div className="flex justify-end gap-1">
+      <Button variant="ghost" size="icon" asChild title="Abrir PDF">
+        <a href={`/api/quotes/${quote.id}/pdf`} target="_blank" rel="noopener">
+          <FileText />
+        </a>
+      </Button>
       <Button variant="ghost" size="icon" asChild title="Editar">
         <Link href={`/orcamentos/cadastro?id=${quote.id}`}>
           <Pencil />

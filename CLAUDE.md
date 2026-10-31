@@ -107,6 +107,12 @@ materiais/
 - Cálculos de preço só pelas funções de `src/utils/pricing.ts` (`roundMoney`, `calculateMaterialsCost`, `calculatePrice`), usadas tanto na API quanto na prévia do formulário. Nunca arredondar com `Math.round(x * 100) / 100` direto (erra centavos por causa do ponto flutuante).
 - Preço de produto não é salvo: é calculado a partir do preço atual dos materiais + margem de lucro.
 
+## Exportação (PDF e CSV)
+
+- Gerada no servidor: `src/services/quotePdf.tsx` (`@react-pdf/renderer`) e `src/services/quoteCsv.ts`, servidos por `/api/quotes/:id/pdf` (`Content-Disposition: inline`) e `/api/quotes/:id/csv` (`attachment`). Na tela, são links `<a href>` comuns (não `fetch`).
+- CSV no padrão do Excel pt-BR: separador `;`, decimal com vírgula, BOM UTF-8 no início e campos com `;`, aspas ou quebra de linha entre aspas.
+- PDF: cores em hexadecimal (o PDF não lê as variáveis CSS), logo reduzido em `public/assets/Logotipo-WoodKun-pdf.png` (não usar os PNGs originais, que têm ~1,5 MB) e hifenização desligada.
+
 ## Estilo
 
 - Cores definidas como tokens no `:root` de `src/styles/globals.css`. Usar os tokens do shadcn (`bg-primary`, `border-border`, `text-muted-foreground`, `bg-card`…), não cores fixas do Tailwind nem as classes antigas `wood-*`.

@@ -19,7 +19,7 @@ O WoodKun ajuda a montar orçamentos de móveis planejados a partir dos materiai
 | Produtos: cadastro com lista de materiais e cálculo do valor final | ✅ Pronto |
 | Orçamentos: itens (materiais ou produtos) com preço congelado, quantidade e valor editáveis, desconto e status | ✅ Pronto |
 | Início: listagem de orçamentos com busca e filtro por status | ✅ Pronto |
-| Exportação de orçamentos em PDF e CSV | 📋 Planejado |
+| Exportação de orçamentos em PDF e CSV | ✅ Pronto |
 | Imagens de materiais e produtos | 📋 Planejado |
 
 ## Tecnologias
@@ -101,6 +101,8 @@ Cada entidade segue o mesmo padrão. Exemplo com materiais:
 | `GET` | `/api/materials/:id` | `200` com o material, ou `404` |
 | `PUT` | `/api/materials/:id` | `200` com o material atualizado, `400` ou `404` |
 | `DELETE` | `/api/materials/:id` | `204`, `404`, ou `409` se o material estiver em uso |
+
+Orçamentos também podem ser exportados: `GET /api/quotes/:id/pdf` (abre o PDF no navegador) e `GET /api/quotes/:id/csv` (baixa uma planilha que abre direto no Excel).
 
 ## Convenções
 
