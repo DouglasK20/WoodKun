@@ -16,6 +16,7 @@ Sistema de orçamentos para marcenaria. Next.js 15 (App Router) + React 19, Tail
 
 - Antes de subir um servidor de teste, verificar se já existe um `next dev` rodando neste projeto (`ps -eo command | grep "next dev"`). Se existir, **testar nele** (normalmente `localhost:3000`) em vez de subir outro: dois servidores na mesma pasta `.next` corrompem os arquivos um do outro (erros como `Cannot read properties of undefined (reading 'call')` ou `Cannot find module './vendor-chunks/...'`).
 - Pelo mesmo motivo, não rodar `npm run build` enquanto um `next dev` estiver rodando.
+- **Dados de teste**: o banco e a pasta `storage/uploads` são os mesmos que o usuário usa. Ao testar, crie registros identificáveis (prefixo `TESTE`) e limpe **só eles** (`where name like 'TESTE%'`, ids/arquivos específicos). Nunca `delete from <tabela>` sem filtro, `truncate` ou apagar a pasta de uploads inteira; antes de mexer numa tabela de uma linha só (`company_settings`), confira o conteúdo e restaure o valor original.
 - O shell é zsh: variáveis sem aspas **não** são divididas em várias palavras (`J="-b arquivo"; curl $J` passa um argumento só). Em scripts de teste, passe cada argumento separado e entre aspas.
 
 ## Idioma
@@ -90,7 +91,7 @@ materiais/
 
 ### Formulários
 
-- Use `Field` (rótulo + campo + erro), `FormSection` (bloco com título), `NativeSelect` e `AddressFields` de `src/components/form/`; não recriar esses componentes dentro do módulo.
+- Use `Field` (rótulo + campo + erro), `FormSection` (bloco com título), `NativeSelect`, `PasswordInput` (senha com olho) e `AddressFields` de `src/components/form/`; não recriar esses componentes dentro do módulo.
 - `AddressFields` (endereço + busca de CEP) usa `useFormContext`: o form precisa estar dentro de `<FormProvider {...form}>` e ter os campos de `addressFields`.
 - Validações de contato e endereço ficam em `src/schemas/common.ts` (`contactFields`, `addressFields`); reaproveitar com spread no schema da entidade.
 - Listas dentro do form (ex.: materiais do produto) usam `useFieldArray`; valores calculados ao vivo usam `useWatch`.

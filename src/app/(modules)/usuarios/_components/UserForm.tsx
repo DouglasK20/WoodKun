@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { Field } from "@/components/form/Field"
 import { FormSection } from "@/components/form/FormSection"
 import { NativeSelect } from "@/components/form/NativeSelect"
+import { PasswordInput } from "@/components/form/PasswordInput"
 import { useCurrentUser } from "@/components/providers/UserProvider"
 import { Button } from "@/components/shadcn/button"
 import { Input } from "@/components/shadcn/input"
@@ -82,7 +83,7 @@ function NewUserForm() {
           <RoleSelect id="role" {...register("role")} />
         </Field>
         <Field label="Senha inicial" htmlFor="password" error={errors.password?.message} className="sm:col-span-3">
-          <Input id="password" type="password" autoComplete="new-password" {...register("password")} />
+          <PasswordInput id="password" autoComplete="new-password" {...register("password")} />
         </Field>
         <p className="self-end pb-2 text-xs text-muted-foreground sm:col-span-3">
           Mínimo de 8 caracteres. Passe a senha para a pessoa por um canal seguro.
@@ -143,7 +144,7 @@ function EditUserForm({ user, adminCount }: { user: UserListItem; adminCount: nu
           )}
         </Field>
         <Field label="Nova senha" htmlFor="password" error={errors.password?.message} className="sm:col-span-3">
-          <Input id="password" type="password" autoComplete="new-password" {...register("password")} />
+          <PasswordInput id="password" autoComplete="new-password" {...register("password")} />
         </Field>
         <p className="self-end pb-2 text-xs text-muted-foreground sm:col-span-3">
           Deixe em branco para manter a senha atual.
