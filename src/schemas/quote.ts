@@ -33,7 +33,7 @@ export const quoteSchema = z
     title: z.string().trim().min(1, "Informe o título").max(255, "Máximo de 255 caracteres"),
     status: z.enum(QUOTE_STATUSES, { error: "Status inválido" }),
     discount: z.number({ error: "Informe o desconto (ou 0)" }).min(0, "O desconto não pode ser negativo"),
-    // "" quando vazio; senão AAAA-MM-DD, que é o formato do <input type="date">
+    // "" quando vazio; senão AAAA-MM-DD (formato que o DatePicker entrega)
     // Num z.union a mensagem de erro é a da própria união, não a das opções
     validUntil: z.union([z.literal(""), z.iso.date()], { error: "Data inválida" }),
     notes: z.string().trim().max(2000, "Máximo de 2000 caracteres"),

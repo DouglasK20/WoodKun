@@ -23,7 +23,8 @@ export default async function ModulesLayout({
 
   return (
     <UserProvider user={currentUser}>
-      <SidebarProvider>
+      {/* Layout de aplicativo: tudo com a altura da tela e só o conteúdo rola (sidebar e cabeçalho ficam parados) */}
+      <SidebarProvider className="h-svh overflow-hidden">
         <AppSidebar />
         <SidebarInset>
           <header className="flex h-16 shrink-0 items-center justify-end gap-2 border-b border-border px-4 transition-[height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-16">
@@ -37,11 +38,12 @@ export default async function ModulesLayout({
             )}
             <LogoutButton />
           </header>
-          <main className="flex flex-col overflow-auto w-full">
-            <div className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6 lg:px-8">
+          {/* div, não main: o SidebarInset já é o <main>. min-h-0 deixa um filho de flex encolher e rolar */}
+          <div className="min-h-0 w-full flex-1 overflow-y-auto">
+            <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
               {children}
             </div>
-          </main>
+          </div>
         </SidebarInset>
       </SidebarProvider>
     </UserProvider>

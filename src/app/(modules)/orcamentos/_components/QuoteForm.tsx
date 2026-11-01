@@ -7,6 +7,7 @@ import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { FileSpreadsheet, FileText, Plus, Trash2 } from "lucide-react"
 
+import { DatePicker } from "@/components/form/DatePicker"
 import { Field } from "@/components/form/Field"
 import { FormSection } from "@/components/form/FormSection"
 import { Select } from "@/components/form/Select"
@@ -24,6 +25,13 @@ import { quoteSchema, type QuoteInput, type QuoteItemInput } from "@/schemas/quo
 import { ApiError } from "@/utils/apiClient"
 import { formatCurrency } from "@/utils/format"
 import { calculateItemsTotal, calculateQuoteTotal } from "@/utils/pricing"
+
+// Atalhos de validade no calendário
+const VALIDITY_PRESETS = [
+  { label: "Em 7 dias", days: 7 },
+  { label: "Em 15 dias", days: 15 },
+  { label: "Em 30 dias", days: 30 },
+]
 
 type QuoteFormProps = {
   quoteId?: number
@@ -193,7 +201,21 @@ function QuoteFormFields({ quote, customers, materials, products }: QuoteFormFie
           </Field>
 
           <Field label="Válido até" htmlFor="validUntil" error={errors.validUntil?.message} className="sm:col-span-2">
-            <Input id="validUntil" type="date" {...register("validUntil")} />
+            <Controller
+              control={control}
+              name="validUntil"
+              render={({ field }) => (
+                <DatePicker
+                  id="validUntil"
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  placeholder="Sem validade"
+                  presets={VALIDITY_PRESETS}
+                  invalid={!!errors.validUntil}
+                />
+              )}
+            />
           </Field>
 
           <Field label="Observações" htmlFor="notes" error={errors.notes?.message} className="sm:col-span-6">

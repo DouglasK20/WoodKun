@@ -146,3 +146,67 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Calendário (react-day-picker, usado no DatePicker) com as cores do sistema */
+/* "body" na frente: o CSS da biblioteca carrega depois deste arquivo e usa os mesmos seletores;
+   com mais especificidade, as nossas regras ganham independente da ordem */
+body .rdp-root {
+  --rdp-accent-color: var(--primary);
+  --rdp-accent-background-color: var(--accent);
+  --rdp-day-height: 2.25rem;
+  --rdp-day-width: 2.25rem;
+  --rdp-nav-height: 2.25rem;
+  --rdp-selected-border: 0;
+  font-size: 0.875rem;
+}
+
+body .rdp-root .rdp-caption_label {
+  /* inline-block: o ::first-letter abaixo não funciona em elementos inline */
+  display: inline-block;
+  font-weight: 600;
+}
+
+/* Os meses vêm em minúsculas no pt-BR ("novembro de 2026") */
+body .rdp-root .rdp-caption_label::first-letter {
+  text-transform: uppercase;
+}
+
+body .rdp-root .rdp-weekday {
+  color: var(--muted-foreground);
+  font-size: 0.75rem;
+  text-transform: capitalize;
+}
+
+body .rdp-root .rdp-chevron {
+  fill: var(--muted-foreground);
+}
+
+body .rdp-root .rdp-day_button {
+  border-radius: calc(var(--radius) - 2px);
+}
+
+/* Foco com a cor do sistema (o padrão do navegador é um contorno azul) */
+body .rdp-root .rdp-day_button:focus {
+  outline: none;
+}
+
+body .rdp-root .rdp-day_button:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 1px;
+}
+
+body .rdp-root .rdp-day_button:hover:not(:disabled) {
+  background-color: var(--accent);
+}
+
+body .rdp-root .rdp-today:not(.rdp-selected) .rdp-day_button {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+body .rdp-root .rdp-selected .rdp-day_button,
+body .rdp-root .rdp-selected .rdp-day_button:hover {
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+  font-weight: 600;
+}
