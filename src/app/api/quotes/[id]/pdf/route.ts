@@ -3,14 +3,14 @@ import { getCustomer } from "@/services/customerService"
 import { quoteFileName } from "@/services/quoteCsv"
 import { renderQuotePdf } from "@/services/quotePdf"
 import { getQuote } from "@/services/quoteService"
-import { notFound, parseId } from "@/utils/api"
+import { notFound, parseId, withAuth } from "@/utils/api"
 
 type RouteContext = {
   params: Promise<{ id: string }>
 }
 
 // GET /api/quotes/:id/pdf
-export async function GET(_request: Request, { params }: RouteContext) {
+export const GET = withAuth(async (_request: Request, { params }: RouteContext) => {
   const id = parseId((await params).id)
   const quote = id && (await getQuote(id))
   if (!quote) return notFound("Orçamento não encontrado")
@@ -28,4 +28,4 @@ export async function GET(_request: Request, { params }: RouteContext) {
       "Content-Disposition": `inline; filename="${quoteFileName(quote)}.pdf"`,
     },
   })
-}
+})

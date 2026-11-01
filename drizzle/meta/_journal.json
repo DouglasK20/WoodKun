@@ -29,6 +29,13 @@
       "when": 1793565642602,
       "tag": "0003_company_settings",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1793567101614,
+      "tag": "0004_auth_tables",
+      "breakpoints": true
     }
   ]
 }

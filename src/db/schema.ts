@@ -2,6 +2,7 @@ import {
   boolean,
   date,
   decimal,
+  index,
   int,
   mysqlEnum,
   mysqlTable,
@@ -36,6 +37,74 @@ export const customers = mysqlTable("customers", {
   notes: text("notes"),
   ...timestamps,
 })
+
+// Tabelas do Better Auth (login). Os nomes das propriedades (createdAt, userId…) são os que ele espera;
+// os nomes das colunas seguem o padrão do banco. Os ids são strings geradas pelo Better Auth
+export const users = mysqlTable("users", {
+  id: varchar("id", { length: 36 }).primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 255 }).notNull().unique(),
+  emailVerified: boolean("email_verified").notNull().default(false),
+  image: text("image"),
+  // Campos do plugin admin: papel (admin, purchasing, sales) e bloqueio
+  role: varchar("role", { length: 50 }),
+  banned: boolean("banned").default(false),
+  banReason: text("ban_reason"),
+  banExpires: timestamp("ban_expires"),
+  ...timestamps,
+})
+
+export const sessions = mysqlTable(
+  "sessions",
+  {
+    id: varchar("id", { length: 36 }).primaryKey(),
+    token: varchar("token", { length: 255 }).notNull().unique(),
+    userId: varchar("user_id", { length: 36 })
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    expiresAt: timestamp("expires_at").notNull(),
+    ipAddress: varchar("ip_address", { length: 45 }),
+    userAgent: text("user_agent"),
+    impersonatedBy: varchar("impersonated_by", { length: 36 }),
+    ...timestamps,
+  },
+  (table) => [index("sessions_user_id_idx").on(table.userId)]
+)
+
+// Uma "conta" por forma de login do usuário. Para e-mail e senha, providerId = "credential" e o hash da senha fica aqui
+export const accounts = mysqlTable(
+  "accounts",
+  {
+    id: varchar("id", { length: 36 }).primaryKey(),
+    accountId: varchar("account_id", { length: 255 }).notNull(),
+    providerId: varchar("provider_id", { length: 255 }).notNull(),
+    userId: varchar("user_id", { length: 36 })
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    accessToken: text("access_token"),
+    refreshToken: text("refresh_token"),
+    idToken: text("id_token"),
+    accessTokenExpiresAt: timestamp("access_token_expires_at"),
+    refreshTokenExpiresAt: timestamp("refresh_token_expires_at"),
+    scope: text("scope"),
+    password: text("password"),
+    ...timestamps,
+  },
+  (table) => [index("accounts_user_id_idx").on(table.userId)]
+)
+
+// Códigos temporários (ex.: redefinição de senha por e-mail, se for usada no futuro)
+export const verifications = mysqlTable(
+  "verifications",
+  {
+    id: varchar("id", { length: 36 }).primaryKey(),
+    identifier: varchar("identifier", { length: 255 }).notNull(),
+    value: text("value").notNull(),
+    expiresAt: timestamp("expires_at").notNull(),
+    ...timestamps,
+  },
+  (table) => [index("verifications_identifier_idx").on(table.identifier)]
+)
 
 // Dados da marcenaria (aparecem no PDF). Tabela de uma linha só, sempre com id = 1
 export const companySettings = mysqlTable("company_settings", {
@@ -109,6 +178,7 @@ export const quoteItems = mysqlTable("quote_items", {
   unitPrice: money("unit_price").notNull(),
 })
 
+export type User = typeof users.$inferSelect
 export type Customer = typeof customers.$inferSelect
 export type CompanySettings = typeof companySettings.$inferSelect
 export type Quote = typeof quotes.$inferSelect

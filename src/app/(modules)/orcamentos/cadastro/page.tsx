@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation"
 import { QuoteForm } from "../_components/QuoteForm"
+import { Can, NoPermission } from "@/components/providers/UserProvider"
 
 type QuoteFormPageProps = {
   // No Next 15 os searchParams chegam como Promise
@@ -15,7 +16,9 @@ export default async function QuoteFormPage({ searchParams }: QuoteFormPageProps
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">{quoteId ? "Editar orçamento" : "Novo orçamento"}</h1>
-      <QuoteForm quoteId={quoteId} />
+      <Can permission={{ quotes: ["write"] }} fallback={<NoPermission message="Você não tem permissão para editar orçamentos." />}>
+        <QuoteForm quoteId={quoteId} />
+      </Can>
     </div>
   )
 }

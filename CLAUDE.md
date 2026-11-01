@@ -16,6 +16,7 @@ Sistema de orçamentos para marcenaria. Next.js 15 (App Router) + React 19, Tail
 
 - Antes de subir um servidor de teste, verificar se já existe um `next dev` rodando neste projeto (`ps -eo command | grep "next dev"`). Se existir, **testar nele** (normalmente `localhost:3000`) em vez de subir outro: dois servidores na mesma pasta `.next` corrompem os arquivos um do outro (erros como `Cannot read properties of undefined (reading 'call')` ou `Cannot find module './vendor-chunks/...'`).
 - Pelo mesmo motivo, não rodar `npm run build` enquanto um `next dev` estiver rodando.
+- O shell é zsh: variáveis sem aspas **não** são divididas em várias palavras (`J="-b arquivo"; curl $J` passa um argumento só). Em scripts de teste, passe cada argumento separado e entre aspas.
 
 ## Idioma
 
@@ -127,6 +128,17 @@ materiais/
 - O campo `imageUrl` usa `imageUrlSchema` (`src/schemas/common.ts`): só `""` ou URLs do nosso upload.
 - Os services apagam o arquivo antigo (`deleteImage`) ao trocar/remover a imagem e ao excluir o registro.
 - No form: `ImageUpload` ligado com `Controller`; nas tabelas: `Thumbnail` (`next/image`, gera miniatura).
+
+## Login e permissões (Better Auth)
+
+- Configuração em `src/services/auth.ts` (email e senha, `disableSignUp`, plugin `admin` com os papéis, `nextCookies()` por último). Tabelas `users`, `sessions`, `accounts`, `verifications` (`usePlural`); ids de usuário são strings.
+- Papéis e permissões em `src/utils/permissions.ts` (`admin`, `purchasing`, `sales`). Ver dados = qualquer logado; `write` = criar/editar/excluir. Para mudar o que cada papel faz, edite só esse arquivo.
+- **Toda rota da API usa `withAuth`** (`src/utils/api.ts`): `withAuth(handler)` exige login (401); `withAuth(handler, { materials: ["write"] })` exige a permissão (403). Exceções: `/api/auth/[...all]` (Better Auth) e `GET /api/uploads/:fileName` (o `next/image` busca sem cookies; nomes são UUIDs).
+- Telas: o layout `(modules)` checa a sessão no servidor (`getCurrentUser`) e redireciona para `/login`; é a única exceção à regra "dados só pela API". Ele passa o usuário ao `UserProvider`; nas telas use `useCan(permission)` ou `<Can permission={...} fallback={<NoPermission />}>` para esconder botões e bloquear cadastros.
+- Usuários são gerenciados pelo `authClient.admin.*` (hooks em `src/hooks/queries/useUsers.ts`). Erros do Better Auth vêm em inglês: traduza em `AUTH_ERROR_MESSAGES` (`useAuth.ts`) e use `throwIfAuthError`.
+- O plugin admin não aplica `minPasswordLength` ao criar usuário/redefinir senha; o hook `before` em `auth.ts` faz essa validação. O administrador não pode mudar o próprio papel, se bloquear ou se excluir, e o último administrador ativo não pode perder o papel.
+- 401 com a tela aberta (sessão venceu): o `QueryProvider` manda para `/login?next=…`.
+- Primeiro administrador em produção: `npm run user:create` (aceita `--name --email --password --role`).
 
 ## Exportação (PDF e CSV)
 

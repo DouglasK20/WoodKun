@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation"
 import { MaterialForm } from "../_components/MaterialForm"
+import { Can, NoPermission } from "@/components/providers/UserProvider"
 
 type MaterialFormPageProps = {
   // /materiais/cadastro = novo, /materiais/cadastro?id=1 = edição
@@ -16,7 +17,9 @@ export default async function MaterialFormPage({ searchParams }: MaterialFormPag
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">{materialId ? "Editar material" : "Novo material"}</h1>
-      <MaterialForm materialId={materialId} />
+      <Can permission={{ materials: ["write"] }} fallback={<NoPermission message="Você não tem permissão para editar materiais." />}>
+        <MaterialForm materialId={materialId} />
+      </Can>
     </div>
   )
 }

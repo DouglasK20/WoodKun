@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { quoteSchema } from "@/schemas/quote"
 import { deleteQuote, getQuote, updateQuote } from "@/services/quoteService"
-import { fieldError, notFound, parseBody, parseId } from "@/utils/api"
+import { fieldError, notFound, parseBody, parseId, withAuth } from "@/utils/api"
 
 type RouteContext = {
   // No Next 15 os params chegam como Promise
@@ -9,16 +9,16 @@ type RouteContext = {
 }
 
 // GET /api/quotes/:id
-export async function GET(_request: Request, { params }: RouteContext) {
+export const GET = withAuth(async (_request: Request, { params }: RouteContext) => {
   const id = parseId((await params).id)
   const quote = id && (await getQuote(id))
   if (!quote) return notFound("Orçamento não encontrado")
 
   return NextResponse.json(quote)
-}
+})
 
 // PUT /api/quotes/:id
-export async function PUT(request: Request, { params }: RouteContext) {
+export const PUT = withAuth(async (request: Request, { params }: RouteContext) => {
   const id = parseId((await params).id)
   if (!id) return notFound("Orçamento não encontrado")
 
@@ -31,10 +31,10 @@ export async function PUT(request: Request, { params }: RouteContext) {
   if (result.invalidField === "items") return fieldError("items", "Algum material ou produto da lista não existe mais")
 
   return NextResponse.json(result.quote)
-}
+}, { quotes: ["write"] })
 
 // DELETE /api/quotes/:id
-export async function DELETE(_request: Request, { params }: RouteContext) {
+export const DELETE = withAuth(async (_request: Request, { params }: RouteContext) => {
   const id = parseId((await params).id)
   if (!id) return notFound("Orçamento não encontrado")
 
@@ -42,4 +42,4 @@ export async function DELETE(_request: Request, { params }: RouteContext) {
   if (result === "not_found") return notFound("Orçamento não encontrado")
 
   return new NextResponse(null, { status: 204 })
-}
+}, { quotes: ["write"] })

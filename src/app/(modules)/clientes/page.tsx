@@ -2,6 +2,7 @@ import Link from "next/link"
 import { Plus } from "lucide-react"
 
 import { Button } from "@/components/shadcn/button"
+import { Can } from "@/components/providers/UserProvider"
 import { CustomersTable } from "./_components/CustomersTable"
 
 // Os dados são buscados no client pela API (React Query), a página só monta a estrutura
@@ -12,12 +13,14 @@ export default function CustomersPage() {
 
       <CustomersTable
         toolbarActions={
-          <Button asChild>
-            <Link href="/clientes/cadastro">
-              <Plus />
-              Novo cliente
-            </Link>
-          </Button>
+          <Can permission={{ customers: ["write"] }}>
+            <Button asChild>
+              <Link href="/clientes/cadastro">
+                <Plus />
+                Novo cliente
+              </Link>
+            </Button>
+          </Can>
         }
       />
     </div>

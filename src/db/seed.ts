@@ -1,6 +1,7 @@
 // Popula o banco com dados de exemplo. Rodar com: npm run db:seed
+import { auth } from "@/services/auth"
 import { db } from "./index"
-import { customers, materials, productMaterials, products, quoteItems, quotes, type NewMaterial } from "./schema"
+import { customers, materials, productMaterials, products, quoteItems, quotes, users, type NewMaterial } from "./schema"
 
 const sampleMaterials: NewMaterial[] = [
   { name: "Chapa MDF Branco TX 15mm", description: "Chapa 2,75 x 1,85 m, dupla face", measurementUnit: "M2", unitPrice: 72.9 },
@@ -65,7 +66,17 @@ const sampleProducts = [
   },
 ]
 
+// Administrador só para desenvolvimento. Em produção, crie o primeiro administrador com: npm run user:create
+const DEV_ADMIN = { name: "Administrador", email: "admin@woodkun.dev", password: "woodkun123", role: "admin" as const }
+
 async function main() {
+  if ((await db.$count(users)) === 0) {
+    await auth.api.createUser({ body: DEV_ADMIN })
+    console.log(`administrador de desenvolvimento criado: ${DEV_ADMIN.email} / ${DEV_ADMIN.password} (não use em produção)`)
+  } else {
+    console.log("users já possui registros, pulando")
+  }
+
   // Só insere se a tabela estiver vazia, para não duplicar ao rodar de novo
   if ((await db.$count(materials)) === 0) {
     await db.insert(materials).values(sampleMaterials)

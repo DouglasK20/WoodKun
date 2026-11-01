@@ -3,7 +3,8 @@
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, Users, Package, Box } from "lucide-react"
+import { Home, Users, Package, Box, UserCog } from "lucide-react"
+import { useCan } from "@/components/providers/UserProvider"
 
 import {
   Sidebar,
@@ -30,8 +31,13 @@ const navItems = [
   { href: "/materiais", label: "Materiais", icon: Box },
 ]
 
+// Só aparece para quem pode gerenciar usuários (administrador)
+const usersItem = { href: "/usuarios", label: "Usuários", icon: UserCog }
+
 export function AppSidebar() {
   const pathname = usePathname()
+  const canManageUsers = useCan({ user: ["list"] })
+  const items = canManageUsers ? [...navItems, usersItem] : navItems
 
   return (
     <Sidebar side="left" variant="inset" collapsible="icon">
@@ -51,7 +57,7 @@ export function AppSidebar() {
         <SidebarGroup className="p-3 group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:p-4">
           <SidebarGroupContent className="w-full group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center">
             <SidebarMenu className="gap-2 group-data-[collapsible=icon]:items-center group-data-[collapsible=icon]:gap-3 group-data-[collapsible=icon]:[&_span]:hidden group-data-[collapsible=icon]:w-fit">
-              {navItems.map((item) => {
+              {items.map((item) => {
                 const Icon = item.icon
                 const isActive =
                   item.href === "/"

@@ -22,6 +22,7 @@ O WoodKun ajuda a montar orçamentos de móveis planejados a partir dos materiai
 | Exportação de orçamentos em PDF e CSV | ✅ Pronto |
 | Imagens de materiais e produtos | ✅ Pronto |
 | Configurações da empresa (dados e logo no cabeçalho do PDF) | ✅ Pronto |
+| Login, usuários e papéis (Administrador, Compras, Vendas) | ✅ Pronto |
 
 ## Tecnologias
 
@@ -31,6 +32,7 @@ O WoodKun ajuda a montar orçamentos de móveis planejados a partir dos materiai
 - [TanStack Query](https://tanstack.com/query) para buscar e atualizar dados
 - [TanStack Table](https://tanstack.com/table) para as listagens
 - [React Hook Form](https://react-hook-form.com) e [Zod](https://zod.dev) para formulários e validação
+- [Better Auth](https://www.better-auth.com) para login, sessões e papéis
 
 ## Como rodar
 
@@ -40,13 +42,15 @@ O WoodKun ajuda a montar orçamentos de móveis planejados a partir dos materiai
 # 1. Instale as dependências
 npm install
 
-# 2. Crie o arquivo de variáveis de ambiente
+# 2. Crie o arquivo de variáveis de ambiente e gere o segredo do login
 cp .env.example .env
+#    troque BETTER_AUTH_SECRET no .env pelo resultado de:
+openssl rand -base64 32
 
 # 3. Suba o MySQL (porta 3307)
 docker compose up -d
 
-# 4. Crie as tabelas e insira dados de exemplo
+# 4. Crie as tabelas e insira dados de exemplo (inclui um administrador de desenvolvimento)
 npm run db:migrate
 npm run db:seed
 
@@ -54,7 +58,7 @@ npm run db:seed
 npm run dev
 ```
 
-Acesse [http://localhost:3000](http://localhost:3000) e preencha os dados da sua marcenaria em **Configurações** (ícone de engrenagem no topo): eles aparecem no cabeçalho dos orçamentos em PDF.
+Acesse [http://localhost:3000](http://localhost:3000), entre com **admin@woodkun.dev** / **woodkun123** (só para desenvolvimento) e preencha os dados da sua marcenaria em **Configurações** (ícone de engrenagem no topo): eles aparecem no cabeçalho dos orçamentos em PDF.
 
 > O MySQL usa a porta **3307** para não conflitar com outro MySQL que já esteja rodando na 3306.
 
@@ -73,6 +77,7 @@ Acesse [http://localhost:3000](http://localhost:3000) e preencha os dados da sua
 | `npm run db:migrate` | Aplica as migrations pendentes no banco |
 | `npm run db:seed` | Insere materiais e clientes de exemplo (só em tabelas vazias) |
 | `npm run db:studio` | Abre o Drizzle Studio para visualizar o banco |
+| `npm run user:create` | Cria um usuário pelo terminal (use para o primeiro administrador em produção) |
 
 ## Arquitetura
 
@@ -108,6 +113,18 @@ Cada entidade segue o mesmo padrão. Exemplo com materiais:
 | `DELETE` | `/api/materials/:id` | `204`, `404`, ou `409` se o material estiver em uso |
 
 Orçamentos também podem ser exportados: `GET /api/quotes/:id/pdf` (abre o PDF no navegador) e `GET /api/quotes/:id/csv` (baixa uma planilha que abre direto no Excel).
+
+## Usuários e permissões
+
+Não existe cadastro público: o administrador cria os usuários em **Usuários** (menu lateral) e escolhe o papel de cada um. Ver os dados é liberado para qualquer usuário logado; criar, editar e excluir depende do papel:
+
+| Papel | Pode editar |
+|---|---|
+| Administrador | Tudo, inclusive usuários e configurações da empresa |
+| Compras | Materiais (e preços) e produtos |
+| Vendas | Clientes e orçamentos |
+
+Os papéis ficam em `src/utils/permissions.ts`. A API confere a permissão em toda requisição (`401` sem login, `403` sem permissão); a tela só esconde os botões.
 
 ## Convenções
 

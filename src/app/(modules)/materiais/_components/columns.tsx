@@ -6,6 +6,7 @@ import { Pencil, Trash2 } from "lucide-react"
 
 import { Thumbnail } from "@/components/Thumbnail"
 import { Button } from "@/components/shadcn/button"
+import { useCan } from "@/components/providers/UserProvider"
 import { DataTableColumnHeader } from "@/components/data_table/_components/DataTableColumnHeader"
 import { MEASUREMENT_UNIT_LABEL } from "@/db/constants"
 import { useDeleteMaterial, type MaterialResponse } from "@/hooks/queries/useMaterials"
@@ -13,6 +14,8 @@ import { formatCurrency } from "@/utils/format"
 
 function MaterialActions({ material }: { material: MaterialResponse }) {
   const deleteMaterial = useDeleteMaterial()
+  // Sem permissão de escrita, a linha não mostra editar/excluir (a API também recusaria)
+  const canEdit = useCan({ materials: ["write"] })
 
   function handleDelete() {
     if (!confirm(`Excluir o material "${material.name}"?`)) return
@@ -24,21 +27,25 @@ function MaterialActions({ material }: { material: MaterialResponse }) {
 
   return (
     <div className="flex justify-end gap-1">
-      <Button variant="ghost" size="icon" asChild title="Editar">
-        <Link href={`/materiais/cadastro?id=${material.id}`}>
-          <Pencil />
-        </Link>
-      </Button>
-      <Button
-        variant="ghost"
-        size="icon"
-        title="Excluir"
-        className="cursor-pointer text-destructive hover:text-destructive"
-        disabled={deleteMaterial.isPending}
-        onClick={handleDelete}
-      >
-        <Trash2 />
-      </Button>
+      {canEdit && (
+        <>
+          <Button variant="ghost" size="icon" asChild title="Editar">
+            <Link href={`/materiais/cadastro?id=${material.id}`}>
+              <Pencil />
+            </Link>
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            title="Excluir"
+            className="cursor-pointer text-destructive hover:text-destructive"
+            disabled={deleteMaterial.isPending}
+            onClick={handleDelete}
+          >
+            <Trash2 />
+          </Button>
+        </>
+      )}
     </div>
   )
 }

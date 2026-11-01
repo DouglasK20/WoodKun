@@ -5,11 +5,14 @@ import { ColumnDef } from "@tanstack/react-table"
 import { Pencil, Trash2 } from "lucide-react"
 
 import { Button } from "@/components/shadcn/button"
+import { useCan } from "@/components/providers/UserProvider"
 import { DataTableColumnHeader } from "@/components/data_table/_components/DataTableColumnHeader"
 import { useDeleteCustomer, type CustomerResponse } from "@/hooks/queries/useCustomers"
 
 function CustomerActions({ customer }: { customer: CustomerResponse }) {
   const deleteCustomer = useDeleteCustomer()
+  // Sem permissão de escrita, a linha não mostra editar/excluir (a API também recusaria)
+  const canEdit = useCan({ customers: ["write"] })
 
   function handleDelete() {
     if (!confirm(`Excluir o cliente "${customer.name}"?`)) return
@@ -21,21 +24,25 @@ function CustomerActions({ customer }: { customer: CustomerResponse }) {
 
   return (
     <div className="flex justify-end gap-1">
-      <Button variant="ghost" size="icon" asChild title="Editar">
-        <Link href={`/clientes/cadastro?id=${customer.id}`}>
-          <Pencil />
-        </Link>
-      </Button>
-      <Button
-        variant="ghost"
-        size="icon"
-        title="Excluir"
-        className="cursor-pointer text-destructive hover:text-destructive"
-        disabled={deleteCustomer.isPending}
-        onClick={handleDelete}
-      >
-        <Trash2 />
-      </Button>
+      {canEdit && (
+        <>
+          <Button variant="ghost" size="icon" asChild title="Editar">
+            <Link href={`/clientes/cadastro?id=${customer.id}`}>
+              <Pencil />
+            </Link>
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            title="Excluir"
+            className="cursor-pointer text-destructive hover:text-destructive"
+            disabled={deleteCustomer.isPending}
+            onClick={handleDelete}
+          >
+            <Trash2 />
+          </Button>
+        </>
+      )}
     </div>
   )
 }

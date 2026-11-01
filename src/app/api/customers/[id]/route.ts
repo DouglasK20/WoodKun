@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { customerSchema } from "@/schemas/customer"
 import { deleteCustomer, getCustomer, updateCustomer } from "@/services/customerService"
-import { notFound, parseBody, parseId } from "@/utils/api"
+import { notFound, parseBody, parseId, withAuth } from "@/utils/api"
 
 type RouteContext = {
   // No Next 15 os params chegam como Promise
@@ -9,16 +9,16 @@ type RouteContext = {
 }
 
 // GET /api/customers/:id
-export async function GET(_request: Request, { params }: RouteContext) {
+export const GET = withAuth(async (_request: Request, { params }: RouteContext) => {
   const id = parseId((await params).id)
   const customer = id && (await getCustomer(id))
   if (!customer) return notFound("Cliente não encontrado")
 
   return NextResponse.json(customer)
-}
+})
 
 // PUT /api/customers/:id
-export async function PUT(request: Request, { params }: RouteContext) {
+export const PUT = withAuth(async (request: Request, { params }: RouteContext) => {
   const id = parseId((await params).id)
   if (!id) return notFound("Cliente não encontrado")
 
@@ -29,10 +29,10 @@ export async function PUT(request: Request, { params }: RouteContext) {
   if (!customer) return notFound("Cliente não encontrado")
 
   return NextResponse.json(customer)
-}
+}, { customers: ["write"] })
 
 // DELETE /api/customers/:id
-export async function DELETE(_request: Request, { params }: RouteContext) {
+export const DELETE = withAuth(async (_request: Request, { params }: RouteContext) => {
   const id = parseId((await params).id)
   if (!id) return notFound("Cliente não encontrado")
 
@@ -46,4 +46,4 @@ export async function DELETE(_request: Request, { params }: RouteContext) {
   }
 
   return new NextResponse(null, { status: 204 })
-}
+}, { customers: ["write"] })

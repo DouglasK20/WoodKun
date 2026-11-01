@@ -5,6 +5,7 @@ import { ColumnDef } from "@tanstack/react-table"
 import { FileText, Pencil, Trash2 } from "lucide-react"
 
 import { Button } from "@/components/shadcn/button"
+import { useCan } from "@/components/providers/UserProvider"
 import { DataTableColumnHeader } from "@/components/data_table/_components/DataTableColumnHeader"
 import { useDeleteQuote, type QuoteListResponse } from "@/hooks/queries/useQuotes"
 import { formatCurrency, formatDate } from "@/utils/format"
@@ -12,6 +13,8 @@ import { QuoteStatusBadge } from "./QuoteStatusBadge"
 
 function QuoteActions({ quote }: { quote: QuoteListResponse }) {
   const deleteQuote = useDeleteQuote()
+  // Sem permissão de escrita, a linha não mostra editar/excluir (a API também recusaria)
+  const canEdit = useCan({ quotes: ["write"] })
 
   function handleDelete() {
     if (!confirm(`Excluir o orçamento "${quote.title}"?`)) return
@@ -28,21 +31,25 @@ function QuoteActions({ quote }: { quote: QuoteListResponse }) {
           <FileText />
         </a>
       </Button>
-      <Button variant="ghost" size="icon" asChild title="Editar">
-        <Link href={`/orcamentos/cadastro?id=${quote.id}`}>
-          <Pencil />
-        </Link>
-      </Button>
-      <Button
-        variant="ghost"
-        size="icon"
-        title="Excluir"
-        className="cursor-pointer text-destructive hover:text-destructive"
-        disabled={deleteQuote.isPending}
-        onClick={handleDelete}
-      >
-        <Trash2 />
-      </Button>
+      {canEdit && (
+        <>
+          <Button variant="ghost" size="icon" asChild title="Editar">
+            <Link href={`/orcamentos/cadastro?id=${quote.id}`}>
+              <Pencil />
+            </Link>
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            title="Excluir"
+            className="cursor-pointer text-destructive hover:text-destructive"
+            disabled={deleteQuote.isPending}
+            onClick={handleDelete}
+          >
+            <Trash2 />
+          </Button>
+        </>
+      )}
     </div>
   )
 }
