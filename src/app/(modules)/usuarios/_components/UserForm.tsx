@@ -2,12 +2,12 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useForm } from "react-hook-form"
+import { Controller, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 
 import { Field } from "@/components/form/Field"
 import { FormSection } from "@/components/form/FormSection"
-import { NativeSelect } from "@/components/form/NativeSelect"
+import { Select } from "@/components/form/Select"
 import { PasswordInput } from "@/components/form/PasswordInput"
 import { useCurrentUser } from "@/components/providers/UserProvider"
 import { Button } from "@/components/shadcn/button"
@@ -41,24 +41,15 @@ export function UserForm({ userId }: { userId?: string }) {
   return <EditUserForm user={user} adminCount={adminCount} />
 }
 
-// Select de papel com a descrição do que cada um pode fazer
-function RoleSelect(props: React.ComponentProps<typeof NativeSelect>) {
-  return (
-    <NativeSelect {...props}>
-      {ROLES.map((role) => (
-        <option key={role} value={role}>
-          {ROLE_LABEL[role]} — {ROLE_DESCRIPTION[role]}
-        </option>
-      ))}
-    </NativeSelect>
-  )
-}
+// Opções de papel com a descrição do que cada um pode fazer
+const ROLE_OPTIONS = ROLES.map((role) => ({ value: role, label: ROLE_LABEL[role], description: ROLE_DESCRIPTION[role] }))
 
 function NewUserForm() {
   const router = useRouter()
   const createUser = useCreateUser()
   const {
     register,
+    control,
     handleSubmit,
     formState: { errors },
   } = useForm<NewUserInput>({
@@ -80,7 +71,13 @@ function NewUserForm() {
           <Input id="email" type="email" autoComplete="off" {...register("email")} />
         </Field>
         <Field label="Papel" htmlFor="role" error={errors.role?.message} className="sm:col-span-6">
-          <RoleSelect id="role" {...register("role")} />
+          <Controller
+            control={control}
+            name="role"
+            render={({ field }) => (
+              <Select id="role" options={ROLE_OPTIONS} value={field.value} onChange={field.onChange} onBlur={field.onBlur} />
+            )}
+          />
         </Field>
         <Field label="Senha inicial" htmlFor="password" error={errors.password?.message} className="sm:col-span-3">
           <PasswordInput id="password" autoComplete="new-password" {...register("password")} />
@@ -111,6 +108,7 @@ function EditUserForm({ user, adminCount }: { user: UserListItem; adminCount: nu
 
   const {
     register,
+    control,
     handleSubmit,
     setError,
     formState: { errors },
@@ -140,7 +138,13 @@ function EditUserForm({ user, adminCount }: { user: UserListItem; adminCount: nu
               <span className="text-xs text-muted-foreground">(você não pode alterar o seu próprio papel)</span>
             </p>
           ) : (
-            <RoleSelect id="role" {...register("role")} />
+            <Controller
+              control={control}
+              name="role"
+              render={({ field }) => (
+                <Select id="role" options={ROLE_OPTIONS} value={field.value} onChange={field.onChange} onBlur={field.onBlur} />
+              )}
+            />
           )}
         </Field>
         <Field label="Nova senha" htmlFor="password" error={errors.password?.message} className="sm:col-span-3">

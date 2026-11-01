@@ -91,10 +91,11 @@ materiais/
 
 ### Formulários
 
-- Use `Field` (rótulo + campo + erro), `FormSection` (bloco com título), `NativeSelect`, `PasswordInput` (senha com olho) e `AddressFields` de `src/components/form/`; não recriar esses componentes dentro do módulo.
+- Use `Field` (rótulo + campo + erro), `FormSection` (bloco com título), `Select` (react-select com busca, no visual do sistema), `PasswordInput` (senha com olho) e `AddressFields` de `src/components/form/`; não recriar esses componentes dentro do módulo.
 - `AddressFields` (endereço + busca de CEP) usa `useFormContext`: o form precisa estar dentro de `<FormProvider {...form}>` e ter os campos de `addressFields`.
 - Validações de contato e endereço ficam em `src/schemas/common.ts` (`contactFields`, `addressFields`); reaproveitar com spread no schema da entidade.
 - Listas dentro do form (ex.: materiais do produto) usam `useFieldArray`; valores calculados ao vivo usam `useWatch`.
+- Selects: sempre o `Select` (nunca `<select>` nativo). Em formulários, ligue com `Controller` (não funciona com `register`). A busca liga sozinha com mais de 8 opções; force com `searchable` em listas que crescem (clientes, materiais, produtos). Valores são texto: converta ids numéricos com `String()` / `Number()`.
 - Campos opcionais trafegam como `""` no form e na API; o service converte `""` em `null` antes de salvar.
 - Máscaras em `src/utils/masks.ts` (`maskPhone`, `maskDocument`, `maskZipCode`), aplicadas com `{...withMask(register("campo"), mask)}`.
 - CPF/CNPJ validados com `isValidDocument` (`src/utils/documents.ts`), que confere os dígitos verificadores.

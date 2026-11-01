@@ -3,13 +3,13 @@
 import { useMemo, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useFieldArray, useForm, useWatch } from "react-hook-form"
+import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { FileSpreadsheet, FileText, Plus, Trash2 } from "lucide-react"
 
 import { Field } from "@/components/form/Field"
 import { FormSection } from "@/components/form/FormSection"
-import { NativeSelect } from "@/components/form/NativeSelect"
+import { Select } from "@/components/form/Select"
 import { Button } from "@/components/shadcn/button"
 import { Input } from "@/components/shadcn/input"
 import { Skeleton } from "@/components/shadcn/skeleton"
@@ -144,29 +144,44 @@ function QuoteFormFields({ quote, customers, materials, products }: QuoteFormFie
           </Field>
 
           <Field label="Status" htmlFor="status" error={errors.status?.message} className="sm:col-span-2">
-            <NativeSelect id="status" {...register("status")}>
-              {QUOTE_STATUSES.map((status) => (
-                <option key={status} value={status}>
-                  {QUOTE_STATUS_LABEL[status]}
-                </option>
-              ))}
-            </NativeSelect>
+            <Controller
+              control={control}
+              name="status"
+              render={({ field }) => (
+                <Select
+                  id="status"
+                  options={QUOTE_STATUSES.map((status) => ({ value: status, label: QUOTE_STATUS_LABEL[status] }))}
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                />
+              )}
+            />
           </Field>
 
           <Field label="Cliente" htmlFor="customerId" error={errors.customerId?.message} className="sm:col-span-4">
             {customers.length ? (
-              <NativeSelect
-                id="customerId"
-                // O <select> entrega string; convertemos para o número que o schema espera
-                {...register("customerId", { setValueAs: (value) => (value === "" ? NaN : Number(value)) })}
-              >
-                <option value="">Selecione um cliente…</option>
-                {customers.map((customer) => (
-                  <option key={customer.id} value={customer.id}>
-                    {customer.name}
-                  </option>
-                ))}
-              </NativeSelect>
+              <Controller
+                control={control}
+                name="customerId"
+                render={({ field }) => (
+                  <Select
+                    id="customerId"
+                    options={customers.map((customer) => ({
+                      value: String(customer.id),
+                      label: customer.name,
+                      description: [customer.phone, customer.city].filter(Boolean).join(" · ") || undefined,
+                    }))}
+                    // O Select trabalha com texto; o schema espera número (NaN = nenhum cliente)
+                    value={Number.isFinite(field.value) ? String(field.value) : ""}
+                    onChange={(value) => field.onChange(value === "" ? NaN : Number(value))}
+                    onBlur={field.onBlur}
+                    placeholder="Buscar cliente…"
+                    searchable
+                    invalid={!!errors.customerId}
+                  />
+                )}
+              />
             ) : (
               <p className="text-sm text-muted-foreground">
                 Nenhum cliente cadastrado.{" "}
@@ -379,10 +394,15 @@ function QuoteItemPicker({ materials, products, onAdd }: QuoteItemPickerProps) {
   const options = useMemo(
     () =>
       type === "PRODUCT"
-        ? products.map((product) => ({ id: product.id, label: `${product.name} — ${formatCurrency(product.price)}/un` }))
+        ? products.map((product) => ({
+            value: String(product.id),
+            label: product.name,
+            description: `${formatCurrency(product.price)}/un`,
+          }))
         : materials.map((material) => ({
-            id: material.id,
-            label: `${material.name} — ${formatCurrency(material.unitPrice)}/${MEASUREMENT_UNIT_SHORT[material.measurementUnit]}`,
+            value: String(material.id),
+            label: material.name,
+            description: `${formatCurrency(material.unitPrice)}/${MEASUREMENT_UNIT_SHORT[material.measurementUnit]}`,
           })),
     [type, materials, products]
   )
@@ -425,34 +445,29 @@ function QuoteItemPicker({ materials, products, onAdd }: QuoteItemPickerProps) {
 
   return (
     <div className="flex flex-col gap-2 sm:flex-row">
-      <NativeSelect
+      <Select
         aria-label="Tipo de item"
+        options={[
+          { value: "PRODUCT", label: "Produto" },
+          { value: "MATERIAL", label: "Material" },
+        ]}
         value={type}
-        onChange={(event) => {
-          setType(event.target.value as QuoteItemInput["type"])
+        onChange={(value) => {
+          setType(value as QuoteItemInput["type"])
           setSelectedId("")
         }}
-        className="sm:w-32"
-      >
-        <option value="PRODUCT">Produto</option>
-        <option value="MATERIAL">Material</option>
-      </NativeSelect>
+        className="sm:w-36"
+      />
 
-      <NativeSelect
+      <Select
         aria-label="Item"
+        options={options}
         value={selectedId}
-        onChange={(event) => setSelectedId(event.target.value)}
+        onChange={setSelectedId}
+        placeholder={options.length ? `Buscar ${type === "PRODUCT" ? "produto" : "material"}…` : "Nenhum cadastrado"}
+        searchable
         className="sm:flex-1"
-      >
-        <option value="">
-          {options.length ? `Selecione um ${type === "PRODUCT" ? "produto" : "material"}…` : "Nenhum cadastrado"}
-        </option>
-        {options.map((option) => (
-          <option key={option.id} value={option.id}>
-            {option.label}
-          </option>
-        ))}
-      </NativeSelect>
+      />
 
       <div className="flex items-center gap-2">
         <Input

@@ -1,12 +1,12 @@
 "use client"
 
-import { useFormContext } from "react-hook-form"
+import { Controller, useFormContext } from "react-hook-form"
 import { LoaderCircle } from "lucide-react"
 
 import { Field } from "@/components/form/Field"
-import { NativeSelect } from "@/components/form/NativeSelect"
+import { Select } from "@/components/form/Select"
 import { Input } from "@/components/shadcn/input"
-import { BRAZILIAN_STATES } from "@/db/constants"
+import { BRAZILIAN_STATES, BRAZILIAN_STATE_NAME } from "@/db/constants"
 import { useZipCodeLookup } from "@/hooks/useZipCodeLookup"
 import type { AddressInput } from "@/schemas/common"
 import { maskZipCode, onlyDigits, withMask } from "@/utils/masks"
@@ -16,6 +16,7 @@ import { maskZipCode, onlyDigits, withMask } from "@/utils/masks"
 export function AddressFields() {
   const {
     register,
+    control,
     setValue,
     setFocus,
     formState: { errors },
@@ -87,14 +88,21 @@ export function AddressFields() {
       </Field>
 
       <Field label="UF" htmlFor="state" error={errors.state?.message} className="sm:col-span-1">
-        <NativeSelect id="state" {...register("state")}>
-          <option value="">—</option>
-          {BRAZILIAN_STATES.map((state) => (
-            <option key={state} value={state}>
-              {state}
-            </option>
-          ))}
-        </NativeSelect>
+        <Controller
+          control={control}
+          name="state"
+          render={({ field }) => (
+            <Select
+              id="state"
+              options={BRAZILIAN_STATES.map((state) => ({ value: state, label: state, description: BRAZILIAN_STATE_NAME[state] }))}
+              value={field.value}
+              onChange={field.onChange}
+              onBlur={field.onBlur}
+              placeholder="—"
+              invalid={!!errors.state}
+            />
+          )}
+        />
       </Field>
     </>
   )

@@ -10,7 +10,7 @@ import { Plus, Trash2 } from "lucide-react"
 import { Field } from "@/components/form/Field"
 import { FormSection } from "@/components/form/FormSection"
 import { ImageUpload } from "@/components/form/ImageUpload"
-import { NativeSelect } from "@/components/form/NativeSelect"
+import { Select } from "@/components/form/Select"
 import { Button } from "@/components/shadcn/button"
 import { Input } from "@/components/shadcn/input"
 import { Skeleton } from "@/components/shadcn/skeleton"
@@ -297,19 +297,19 @@ function MaterialPicker({ materials, onAdd }: MaterialPickerProps) {
 
   return (
     <div className="flex flex-col gap-2 sm:flex-row">
-      <NativeSelect
+      <Select
         aria-label="Material"
+        options={materials.map((material) => ({
+          value: String(material.id),
+          label: material.name,
+          description: `${formatCurrency(material.unitPrice)}/${MEASUREMENT_UNIT_SHORT[material.measurementUnit]}`,
+        }))}
         value={materialId}
-        onChange={(event) => setMaterialId(event.target.value)}
+        onChange={setMaterialId}
+        placeholder={materials.length ? "Buscar material…" : "Todos os materiais já foram adicionados"}
+        searchable
         className="sm:flex-1"
-      >
-        <option value="">{materials.length ? "Selecione um material…" : "Todos os materiais já foram adicionados"}</option>
-        {materials.map((material) => (
-          <option key={material.id} value={material.id}>
-            {material.name} — {formatCurrency(material.unitPrice)}/{MEASUREMENT_UNIT_SHORT[material.measurementUnit]}
-          </option>
-        ))}
-      </NativeSelect>
+      />
 
       <div className="flex items-center gap-2">
         <Input

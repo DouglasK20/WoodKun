@@ -7,7 +7,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 
 import { Field } from "@/components/form/Field"
 import { ImageUpload } from "@/components/form/ImageUpload"
-import { NativeSelect } from "@/components/form/NativeSelect"
+import { Select } from "@/components/form/Select"
 import { Button } from "@/components/shadcn/button"
 import { Input } from "@/components/shadcn/input"
 import { Skeleton } from "@/components/shadcn/skeleton"
@@ -109,13 +109,20 @@ function MaterialFormFields({ material }: { material?: MaterialResponse }) {
 
       <div className="grid gap-5 sm:grid-cols-2">
         <Field label="Unidade de medida" htmlFor="measurementUnit" error={errors.measurementUnit?.message}>
-          <NativeSelect id="measurementUnit" {...register("measurementUnit")}>
-            {MEASUREMENT_UNITS.map((unit) => (
-              <option key={unit} value={unit}>
-                {MEASUREMENT_UNIT_LABEL[unit]}
-              </option>
-            ))}
-          </NativeSelect>
+          {/* Controller: o Select não é um <input> nativo, então não funciona com register */}
+          <Controller
+            control={control}
+            name="measurementUnit"
+            render={({ field }) => (
+              <Select
+                id="measurementUnit"
+                options={MEASUREMENT_UNITS.map((unit) => ({ value: unit, label: MEASUREMENT_UNIT_LABEL[unit] }))}
+                value={field.value}
+                onChange={field.onChange}
+                onBlur={field.onBlur}
+              />
+            )}
+          />
         </Field>
 
         <Field label="Valor (R$)" htmlFor="unitPrice" error={errors.unitPrice?.message}>

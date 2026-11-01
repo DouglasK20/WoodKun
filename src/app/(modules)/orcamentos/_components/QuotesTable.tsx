@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react"
 
 import { DataTable } from "@/components/data_table/DataTable"
-import { NativeSelect } from "@/components/form/NativeSelect"
+import { Select } from "@/components/form/Select"
 import { Button } from "@/components/shadcn/button"
 import { Skeleton } from "@/components/shadcn/skeleton"
 import { QUOTE_STATUSES, QUOTE_STATUS_LABEL, type QuoteStatus } from "@/db/constants"
@@ -60,19 +60,15 @@ export function QuotesTable({ toolbarActions }: QuotesTableProps) {
       emptyMessage={status ? "Nenhum orçamento com esse status." : "Nenhum orçamento cadastrado."}
       toolbarActions={
         <div className="flex items-center gap-2">
-          <NativeSelect
+          <Select
             aria-label="Filtrar por status"
+            options={QUOTE_STATUSES.map((value) => ({ value, label: QUOTE_STATUS_LABEL[value] }))}
             value={status}
-            onChange={(event) => setStatus(event.target.value as QuoteStatus | "")}
-            className="w-40"
-          >
-            <option value="">Todos os status</option>
-            {QUOTE_STATUSES.map((value) => (
-              <option key={value} value={value}>
-                {QUOTE_STATUS_LABEL[value]}
-              </option>
-            ))}
-          </NativeSelect>
+            onChange={(value) => setStatus(value as QuoteStatus | "")}
+            placeholder="Todos os status"
+            clearable
+            className="w-48"
+          />
           {toolbarActions}
         </div>
       }
