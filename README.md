@@ -18,7 +18,8 @@ O WoodKun ajuda a montar orçamentos de móveis planejados a partir dos materiai
 | Clientes: listagem e cadastro, com busca de endereço pelo CEP e validação de CPF/CNPJ | ✅ Pronto |
 | Produtos: cadastro com lista de materiais e cálculo do valor final | ✅ Pronto |
 | Orçamentos: itens (materiais ou produtos) com preço congelado, quantidade e valor editáveis, desconto e status | ✅ Pronto |
-| Início: listagem de orçamentos com busca e filtro por status | ✅ Pronto |
+| Início: painel (orçado e aprovado no mês, aguardando resposta, taxa de aprovação, gráfico mensal, orçamentos vencendo) | ✅ Pronto |
+| Orçamentos: listagem com busca e filtro por status | ✅ Pronto |
 | Exportação de orçamentos em PDF e CSV | ✅ Pronto |
 | Imagens de materiais e produtos | ✅ Pronto |
 | Configurações da empresa (dados e logo no cabeçalho do PDF) | ✅ Pronto |
@@ -31,6 +32,7 @@ O WoodKun ajuda a montar orçamentos de móveis planejados a partir dos materiai
 - [Drizzle ORM](https://orm.drizzle.team) com MySQL 8
 - [TanStack Query](https://tanstack.com/query) para buscar e atualizar dados
 - [TanStack Table](https://tanstack.com/table) para as listagens
+- [Apache ECharts](https://echarts.apache.org) para os gráficos
 - [React Hook Form](https://react-hook-form.com) e [Zod](https://zod.dev) para formulários e validação
 - [Better Auth](https://www.better-auth.com) para login, sessões e papéis
 

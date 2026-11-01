@@ -5,6 +5,7 @@ Sistema de orçamentos para marcenaria. Next.js 15 (App Router) + React 19, Tail
 ## Comandos
 
 - `cp .env.example .env` — cria o `.env` local (primeira vez)
+- Para instalar pacotes use `npm install <pacote> --legacy-peer-deps`: o `better-auth` declara o SvelteKit como dependência opcional (pede TypeScript 6), o que conflita com o ESLint do projeto. O SvelteKit não é usado aqui.
 - `docker compose up -d` — sobe o MySQL (porta **3307**, banco `woodkun`)
 - `npm run dev` — servidor de desenvolvimento (Turbopack)
 - `npm run db:generate` — gera migration a partir de `src/db/schema.ts` (commitar a pasta `drizzle/`)
@@ -37,7 +38,7 @@ Cada módulo segue o mesmo padrão de URL:
 - `/<modulo>/cadastro` — cadastro de um novo registro
 - `/<modulo>/cadastro?id=1` — edição do registro 1
 
-Exceção: a listagem de orçamentos fica no Início (`/`); `/orcamentos` só redireciona para lá, e o cadastro segue o padrão (`/orcamentos/cadastro?id=`).
+O Início (`/`) é só o painel de indicadores; os orçamentos seguem o padrão (`/orcamentos` e `/orcamentos/cadastro?id=`).
 
 Não criar rotas dinâmicas `[id]` para edição: a página `cadastro/page.tsx` lê `searchParams.id`, busca o registro (chamando `notFound()` se o id for inválido ou não existir) e passa para o mesmo formulário.
 
@@ -142,6 +143,13 @@ materiais/
 - O plugin admin não aplica `minPasswordLength` ao criar usuário/redefinir senha; o hook `before` em `auth.ts` faz essa validação. O administrador não pode mudar o próprio papel, se bloquear ou se excluir, e o último administrador ativo não pode perder o papel.
 - 401 com a tela aberta (sessão venceu): o `QueryProvider` manda para `/login?next=…`.
 - Primeiro administrador em produção: `npm run user:create` (aceita `--name --email --password --role`).
+
+## Gráficos e painel
+
+- Gráficos com ECharts pelo componente `EChart` (`src/components/charts/EChart.tsx`), que registra só os módulos usados (`registerEChartsModules`) e desenha em SVG. Novo tipo de gráfico: registre o módulo lá e acrescente o tipo da opção em `EChartOption`.
+- Cores dos gráficos em `CHART_COLORS` (hexadecimal; o ECharts não lê variáveis CSS). Antes de criar uma cor nova de série, valide com o script do skill de dataviz (separação ≥ 8 com daltonismo e ≥ 15 em visão normal; contraste ≥ 3:1). Cores de status (verde/vermelho) não são usadas como série.
+- Todo gráfico tem legenda (2+ séries), tooltip e uma visão em tabela com os mesmos números.
+- Indicadores do Início: `GET /api/dashboard` (`dashboardService`). Comparações do mês em andamento são com o **mesmo período** do mês anterior. Não existe data de mudança de status: "aprovado no mês" = criado no mês e hoje aprovado. Salvar/excluir orçamento invalida `["dashboard"]`.
 
 ## Exportação (PDF e CSV)
 

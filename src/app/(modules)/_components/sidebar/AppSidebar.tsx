@@ -3,7 +3,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, Users, Package, Box, UserCog } from "lucide-react"
+import { Home, FileText, Users, Package, Box, UserCog } from "lucide-react"
 import { useCan } from "@/components/providers/UserProvider"
 
 import {
@@ -26,6 +26,7 @@ import {
 
 const navItems = [
   { href: "/", label: "Início", icon: Home },
+  { href: "/orcamentos", label: "Orçamentos", icon: FileText },
   { href: "/clientes", label: "Clientes", icon: Users },
   { href: "/produtos", label: "Produtos", icon: Package },
   { href: "/materiais", label: "Materiais", icon: Box },
@@ -61,8 +62,7 @@ export function AppSidebar() {
                 const Icon = item.icon
                 const isActive =
                   item.href === "/"
-                    // O Início é a listagem de orçamentos, então também fica ativo no cadastro de orçamento
-                    ? pathname === "/" || pathname.startsWith("/orcamentos")
+                    ? pathname === "/"
                     : pathname === item.href || pathname.startsWith(item.href + "/")
                 return (
                   <SidebarMenuItem key={item.href}>

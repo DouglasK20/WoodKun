@@ -39,7 +39,11 @@ export function useSaveQuote() {
         method: id ? "PUT" : "POST",
         body: JSON.stringify(values),
       }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: quoteKeys.all }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: quoteKeys.all })
+      // Os indicadores do Início são calculados a partir dos orçamentos
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] })
+    },
   })
 }
 
@@ -48,6 +52,10 @@ export function useDeleteQuote() {
 
   return useMutation({
     mutationFn: (id: number) => apiFetch<void>(`/api/quotes/${id}`, { method: "DELETE" }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: quoteKeys.all }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: quoteKeys.all })
+      // Os indicadores do Início são calculados a partir dos orçamentos
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] })
+    },
   })
 }

@@ -63,7 +63,7 @@ export function QuoteForm({ quoteId }: QuoteFormProps) {
       <div className="space-y-3">
         <p className="text-sm text-destructive">{error.message}</p>
         <Button variant="outline" asChild>
-          <Link href="/">Voltar para o início</Link>
+          <Link href="/orcamentos">Voltar para orçamentos</Link>
         </Button>
       </div>
     )
@@ -128,7 +128,7 @@ function QuoteFormFields({ quote, customers, materials, products }: QuoteFormFie
     saveQuote.mutate(
       { id: quote?.id, values },
       {
-        onSuccess: () => router.push("/"),
+        onSuccess: () => router.push("/orcamentos"),
         onError: (error) => {
           // Se a API recusou algum campo (400), mostra o erro embaixo do campo
           if (error instanceof ApiError && error.fieldErrors) {
@@ -366,7 +366,7 @@ function QuoteFormFields({ quote, customers, materials, products }: QuoteFormFie
             {saveQuote.isPending ? "Salvando…" : "Salvar"}
           </Button>
           <Button type="button" variant="outline" asChild>
-            <Link href="/">Cancelar</Link>
+            <Link href="/orcamentos">Cancelar</Link>
           </Button>
         </div>
 
