@@ -4,6 +4,7 @@ import Link from "next/link"
 import { ColumnDef } from "@tanstack/react-table"
 import { Pencil, Trash2 } from "lucide-react"
 
+import { Thumbnail } from "@/components/Thumbnail"
 import { Button } from "@/components/shadcn/button"
 import { DataTableColumnHeader } from "@/components/data_table/_components/DataTableColumnHeader"
 import { useDeleteProduct, type ProductListResponse } from "@/hooks/queries/useProducts"
@@ -49,11 +50,14 @@ export const columns: ColumnDef<ProductListResponse>[] = [
     ),
     enableSorting: true,
     cell: ({ row }) => (
-      <div>
-        <div>{row.original.name}</div>
-        {row.original.description && (
-          <div className="line-clamp-1 max-w-xs text-xs text-muted-foreground">{row.original.description}</div>
-        )}
+      <div className="flex items-center gap-3">
+        <Thumbnail src={row.original.imageUrl} alt={row.original.name} />
+        <div>
+          <div>{row.original.name}</div>
+          {row.original.description && (
+            <div className="line-clamp-1 max-w-xs text-xs text-muted-foreground">{row.original.description}</div>
+          )}
+        </div>
       </div>
     ),
   },

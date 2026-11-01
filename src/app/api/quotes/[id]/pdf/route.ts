@@ -1,3 +1,4 @@
+import { getCompany } from "@/services/companyService"
 import { getCustomer } from "@/services/customerService"
 import { quoteFileName } from "@/services/quoteCsv"
 import { renderQuotePdf } from "@/services/quotePdf"
@@ -16,7 +17,9 @@ export async function GET(_request: Request, { params }: RouteContext) {
 
   // O PDF mostra os dados completos do cliente (documento, contato, endereço)
   const customer = (await getCustomer(quote.customerId))!
-  const pdf = await renderQuotePdf(quote, customer)
+  // Dados da marcenaria para o cabeçalho (null se ainda não foi configurada)
+  const company = await getCompany()
+  const pdf = await renderQuotePdf(quote, customer, company)
 
   return new Response(new Uint8Array(pdf), {
     headers: {

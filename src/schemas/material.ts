@@ -1,5 +1,6 @@
 import { z } from "zod"
 import { MEASUREMENT_UNITS } from "@/db/constants"
+import { imageUrlSchema } from "./common"
 
 // Usado no formulário (client) e na API (server)
 export const materialSchema = z.object({
@@ -10,6 +11,7 @@ export const materialSchema = z.object({
     .number({ error: "Informe o valor" })
     .positive("O valor deve ser maior que zero")
     .max(99_999_999.99, "Valor muito alto"),
+  imageUrl: imageUrlSchema,
 })
 
 export type MaterialInput = z.infer<typeof materialSchema>

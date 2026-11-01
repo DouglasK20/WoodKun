@@ -37,6 +37,24 @@ export const customers = mysqlTable("customers", {
   ...timestamps,
 })
 
+// Dados da marcenaria (aparecem no PDF). Tabela de uma linha só, sempre com id = 1
+export const companySettings = mysqlTable("company_settings", {
+  id: int("id").primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  document: varchar("document", { length: 18 }),
+  phone: varchar("phone", { length: 20 }),
+  email: varchar("email", { length: 255 }),
+  zipCode: varchar("zip_code", { length: 9 }),
+  street: varchar("street", { length: 255 }),
+  number: varchar("number", { length: 20 }),
+  complement: varchar("complement", { length: 100 }),
+  neighborhood: varchar("neighborhood", { length: 100 }),
+  city: varchar("city", { length: 100 }),
+  state: varchar("state", { length: 2 }),
+  logoUrl: varchar("logo_url", { length: 500 }),
+  ...timestamps,
+})
+
 export const materials = mysqlTable("materials", {
   id: int("id").autoincrement().primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
@@ -92,6 +110,7 @@ export const quoteItems = mysqlTable("quote_items", {
 })
 
 export type Customer = typeof customers.$inferSelect
+export type CompanySettings = typeof companySettings.$inferSelect
 export type Quote = typeof quotes.$inferSelect
 export type Product = typeof products.$inferSelect
 export type Material = typeof materials.$inferSelect

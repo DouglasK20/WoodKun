@@ -22,6 +22,13 @@
       "when": 1793476996737,
       "tag": "0002_drop_customer_address",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1793565642602,
+      "tag": "0003_company_settings",
+      "breakpoints": true
     }
   ]
 }

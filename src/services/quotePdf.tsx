@@ -1,10 +1,12 @@
 // Gera o PDF de um orçamento com @react-pdf/renderer (componentes React que viram PDF, só no servidor)
 import path from "node:path"
 import { Document, Font, Image, Page, StyleSheet, Text, View, renderToBuffer } from "@react-pdf/renderer"
+import sharp from "sharp"
 import { MEASUREMENT_UNIT_SHORT } from "@/db/constants"
-import type { Customer } from "@/db/schema"
+import type { CompanySettings, Customer } from "@/db/schema"
 import { formatCurrency, formatDate } from "@/utils/format"
 import type { QuoteDetail } from "./quoteService"
+import { readImageByUrl } from "./uploadService"
 
 // O PDF não enxerga as variáveis CSS do app, então as cores da marca vão em hexadecimal
 const colors = {
@@ -18,7 +20,13 @@ const colors = {
 // Desliga a hifenização automática (usa regras do inglês e pode quebrar palavras em português no lugar errado)
 Font.registerHyphenationCallback((word) => [word])
 
-const LOGO_PATH = path.join(process.cwd(), "public/assets/Logotipo-WoodKun-pdf.png")
+// Logo padrão (WoodKun), usado enquanto a empresa não envia o dela
+const DEFAULT_LOGO_PATH = path.join(process.cwd(), "public/assets/Logotipo-WoodKun-pdf.png")
+const DEFAULT_LOGO_RATIO = 240 / 187
+
+// Área máxima do logo no cabeçalho (em pontos)
+const LOGO_MAX_WIDTH = 90
+const LOGO_MAX_HEIGHT = 56
 
 const quantityFormat = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 3 })
 
@@ -26,9 +34,11 @@ const quantityFormat = new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 3
 const styles = StyleSheet.create({
   page: { padding: 40, paddingBottom: 60, fontFamily: "Helvetica", fontSize: 10, color: colors.text },
   header: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 20 },
-  brand: { flexDirection: "row", alignItems: "center", gap: 10 },
-  logo: { width: 48, height: 37 },
-  brandName: { fontSize: 18, fontFamily: "Helvetica-Bold", color: colors.primary },
+  brand: { flex: 1, flexDirection: "row", alignItems: "center", gap: 10, paddingRight: 16 },
+  brandText: { flex: 1 },
+  quoteInfo: { flexShrink: 0 },
+  brandName: { fontSize: 16, fontFamily: "Helvetica-Bold", color: colors.primary },
+  brandDetail: { fontSize: 8, color: colors.muted, marginTop: 1 },
   quoteNumber: { fontSize: 14, fontFamily: "Helvetica-Bold", textAlign: "right" },
   muted: { color: colors.muted },
   right: { textAlign: "right" },
@@ -81,16 +91,46 @@ const styles = StyleSheet.create({
   },
 })
 
-function formatAddress(customer: Customer) {
-  const streetLine = [customer.street, customer.number, customer.complement].filter(Boolean).join(", ")
-  const cityLine = [customer.neighborhood, [customer.city, customer.state].filter(Boolean).join("/")]
+// Cliente e empresa têm os mesmos campos de endereço e contato
+type AddressAndContact = Pick<
+  Customer,
+  "document" | "phone" | "email" | "zipCode" | "street" | "number" | "complement" | "neighborhood" | "city" | "state"
+>
+
+function formatAddress(entity: AddressAndContact) {
+  const streetLine = [entity.street, entity.number, entity.complement].filter(Boolean).join(", ")
+  const cityLine = [entity.neighborhood, [entity.city, entity.state].filter(Boolean).join("/")]
     .filter(Boolean)
     .join(" - ")
-  return [streetLine, cityLine, customer.zipCode && `CEP ${customer.zipCode}`].filter(Boolean).join(" · ")
+  return [streetLine, cityLine, entity.zipCode && `CEP ${entity.zipCode}`].filter(Boolean).join(" · ")
 }
 
-function QuoteDocument({ quote, customer }: { quote: QuoteDetail; customer: Customer }) {
-  const contact = [customer.document, customer.phone, customer.email].filter(Boolean).join(" · ")
+function formatContact(entity: AddressAndContact) {
+  return [entity.document, entity.phone, entity.email].filter(Boolean).join(" · ")
+}
+
+type Logo = {
+  src: string | { data: Buffer; format: "png" }
+  // largura ÷ altura da imagem, para calcular o tamanho sem esticar
+  ratio: number
+}
+
+// Encaixa o logo na área máxima mantendo a proporção (largo: limita a largura; quadrado/alto: limita a altura)
+function logoSize(ratio: number) {
+  return ratio >= LOGO_MAX_WIDTH / LOGO_MAX_HEIGHT
+    ? { width: LOGO_MAX_WIDTH, height: LOGO_MAX_WIDTH / ratio }
+    : { width: LOGO_MAX_HEIGHT * ratio, height: LOGO_MAX_HEIGHT }
+}
+
+type QuoteDocumentProps = {
+  quote: QuoteDetail
+  customer: Customer
+  company: CompanySettings | null
+  logo: Logo
+}
+
+function QuoteDocument({ quote, customer, company, logo }: QuoteDocumentProps) {
+  const contact = formatContact(customer)
   const address = formatAddress(customer)
 
   return (
@@ -99,12 +139,18 @@ function QuoteDocument({ quote, customer }: { quote: QuoteDetail; customer: Cust
         <View style={styles.header}>
           <View style={styles.brand}>
             {/* eslint-disable-next-line jsx-a11y/alt-text -- Image do react-pdf não é <img> e não aceita alt */}
-            <Image src={LOGO_PATH} style={styles.logo} />
-            <View>
+            <Image src={logo.src} style={logoSize(logo.ratio)} />
+            {company ? (
+              <View style={styles.brandText}>
+                <Text style={styles.brandName}>{company.name}</Text>
+                {formatContact(company) && <Text style={styles.brandDetail}>{formatContact(company)}</Text>}
+                {formatAddress(company) && <Text style={styles.brandDetail}>{formatAddress(company)}</Text>}
+              </View>
+            ) : (
               <Text style={styles.brandName}>WoodKun</Text>
-            </View>
+            )}
           </View>
-          <View>
+          <View style={styles.quoteInfo}>
             <Text style={styles.quoteNumber}>Orçamento #{quote.id}</Text>
             <Text style={[styles.muted, styles.right]}>Emitido em {formatDate(quote.createdAt.toISOString())}</Text>
             {quote.validUntil && (
@@ -177,6 +223,26 @@ function QuoteDocument({ quote, customer }: { quote: QuoteDetail; customer: Cust
   )
 }
 
-export function renderQuotePdf(quote: QuoteDetail, customer: Customer) {
-  return renderToBuffer(<QuoteDocument quote={quote} customer={customer} />)
+// Logo da empresa convertido para PNG e reduzido: o react-pdf não lê WebP, e um logo de 5 MB deixaria o PDF enorme
+async function loadLogo(logoUrl: string | null | undefined): Promise<Logo> {
+  const defaultLogo = { src: DEFAULT_LOGO_PATH, ratio: DEFAULT_LOGO_RATIO }
+  const image = await readImageByUrl(logoUrl)
+  if (!image) return defaultLogo
+
+  try {
+    // resolveWithObject: além dos bytes, devolve largura/altura finais (usadas para calcular a proporção)
+    const { data, info } = await sharp(image.bytes)
+      .resize({ width: 400, height: 400, fit: "inside", withoutEnlargement: true })
+      .png()
+      .toBuffer({ resolveWithObject: true })
+    return { src: { data, format: "png" }, ratio: info.width / info.height }
+  } catch {
+    // Arquivo corrompido: melhor gerar o PDF com o logo padrão do que falhar
+    return defaultLogo
+  }
+}
+
+export async function renderQuotePdf(quote: QuoteDetail, customer: Customer, company: CompanySettings | null) {
+  const logo = await loadLogo(company?.logoUrl)
+  return renderToBuffer(<QuoteDocument quote={quote} customer={customer} company={company} logo={logo} />)
 }

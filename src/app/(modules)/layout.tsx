@@ -1,3 +1,5 @@
+import Link from "next/link"
+import { Settings } from "lucide-react"
 import { SidebarProvider, SidebarInset } from "@/components/shadcn/sidebar"
 import { Button } from "@/components/shadcn/button"
 import { AppSidebar } from "./_components/sidebar/AppSidebar"
@@ -12,6 +14,11 @@ export default function ModulesLayout({
       <AppSidebar />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center justify-end gap-2 border-b border-border px-4 transition-[height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-16">
+          <Button variant="outline" size="icon" className="size-9" asChild title="Configurações">
+            <Link href="/configuracoes" aria-label="Configurações">
+              <Settings />
+            </Link>
+          </Button>
           <Button type="button" variant="outline" size="sm" className="cursor-pointer">
             Sair
           </Button>

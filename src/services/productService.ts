@@ -5,6 +5,7 @@ import { materials, productMaterials, products } from "@/db/schema"
 import type { ProductInput } from "@/schemas/product"
 import { isForeignKeyError } from "@/utils/dbErrors"
 import { calculateItemsTotal, calculatePrice, roundMoney } from "@/utils/pricing"
+import { deleteImage } from "./uploadService"
 
 // Lista com custo calculado no próprio banco: um LEFT JOIN com os materiais e SUM(quantidade × preço) por produto
 export async function listProducts() {
@@ -66,6 +67,7 @@ function toRow(input: ProductInput) {
     name: input.name,
     description: input.description || null,
     profitMargin: input.profitMargin,
+    imageUrl: input.imageUrl || null,
   }
 }
 
@@ -87,7 +89,8 @@ export async function createProduct(input: ProductInput) {
 }
 
 export async function updateProduct(id: number, input: ProductInput) {
-  if (!(await getProduct(id))) return "not_found" as const
+  const existing = await getProduct(id)
+  if (!existing) return "not_found" as const
   if (await hasUnknownMaterials(input)) return "invalid_materials" as const
 
   // Mais simples que comparar item a item: apaga a lista antiga e grava a nova, tudo na mesma transação
@@ -96,17 +99,24 @@ export async function updateProduct(id: number, input: ProductInput) {
     await tx.delete(productMaterials).where(eq(productMaterials.productId, id))
     await tx.insert(productMaterials).values(toItemRows(id, input))
   })
+  // Trocou ou removeu a imagem: o arquivo antigo não é mais usado
+  if (existing.imageUrl !== (input.imageUrl || null)) await deleteImage(existing.imageUrl)
 
   return (await getProduct(id))!
 }
 
 export async function deleteProduct(id: number): Promise<"deleted" | "not_found" | "in_use"> {
-  const [product] = await db.select({ id: products.id }).from(products).where(eq(products.id, id)).limit(1)
+  const [product] = await db
+    .select({ id: products.id, imageUrl: products.imageUrl })
+    .from(products)
+    .where(eq(products.id, id))
+    .limit(1)
   if (!product) return "not_found"
 
   try {
     // Os materiais do produto (product_materials) são apagados junto pelo ON DELETE CASCADE
     await db.delete(products).where(eq(products.id, id))
+    await deleteImage(product.imageUrl)
     return "deleted"
   } catch (error) {
     // O produto está em algum orçamento

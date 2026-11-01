@@ -6,11 +6,16 @@ Sistema de orçamentos para marcenaria. Next.js 15 (App Router) + React 19, Tail
 
 - `cp .env.example .env` — cria o `.env` local (primeira vez)
 - `docker compose up -d` — sobe o MySQL (porta **3307**, banco `woodkun`)
-- `npm run dev` — servidor de desenvolvimento
+- `npm run dev` — servidor de desenvolvimento (Turbopack)
 - `npm run db:generate` — gera migration a partir de `src/db/schema.ts` (commitar a pasta `drizzle/`)
 - `npm run db:migrate` — aplica as migrations
 - `npm run db:seed` — insere dados de exemplo (só em tabelas vazias)
 - `npm run db:studio` — interface para ver o banco
+
+## Servidor de desenvolvimento
+
+- Antes de subir um servidor de teste, verificar se já existe um `next dev` rodando neste projeto (`ps -eo command | grep "next dev"`). Se existir, **testar nele** (normalmente `localhost:3000`) em vez de subir outro: dois servidores na mesma pasta `.next` corrompem os arquivos um do outro (erros como `Cannot read properties of undefined (reading 'call')` ou `Cannot find module './vendor-chunks/...'`).
+- Pelo mesmo motivo, não rodar `npm run build` enquanto um `next dev` estiver rodando.
 
 ## Idioma
 
@@ -84,7 +89,9 @@ materiais/
 
 ### Formulários
 
-- Use `Field` (rótulo + campo + erro), `FormSection` (bloco com título) e `NativeSelect` de `src/components/form/`; não recriar esses componentes dentro do módulo.
+- Use `Field` (rótulo + campo + erro), `FormSection` (bloco com título), `NativeSelect` e `AddressFields` de `src/components/form/`; não recriar esses componentes dentro do módulo.
+- `AddressFields` (endereço + busca de CEP) usa `useFormContext`: o form precisa estar dentro de `<FormProvider {...form}>` e ter os campos de `addressFields`.
+- Validações de contato e endereço ficam em `src/schemas/common.ts` (`contactFields`, `addressFields`); reaproveitar com spread no schema da entidade.
 - Listas dentro do form (ex.: materiais do produto) usam `useFieldArray`; valores calculados ao vivo usam `useWatch`.
 - Campos opcionais trafegam como `""` no form e na API; o service converte `""` em `null` antes de salvar.
 - Máscaras em `src/utils/masks.ts` (`maskPhone`, `maskDocument`, `maskZipCode`), aplicadas com `{...withMask(register("campo"), mask)}`.
@@ -106,6 +113,20 @@ materiais/
 - Formatação de valores: `formatCurrency` em `src/utils/format.ts`.
 - Cálculos de preço só pelas funções de `src/utils/pricing.ts` (`roundMoney`, `calculateMaterialsCost`, `calculatePrice`), usadas tanto na API quanto na prévia do formulário. Nunca arredondar com `Math.round(x * 100) / 100` direto (erra centavos por causa do ponto flutuante).
 - Preço de produto não é salvo: é calculado a partir do preço atual dos materiais + margem de lucro.
+
+## Configurações da empresa
+
+- Tabela `company_settings` com uma linha só (id = 1), salva com upsert (`onDuplicateKeyUpdate`). API: `GET /api/company` (devolve `null` se não configurada) e `PUT /api/company`. Tela em `/configuracoes`, aberta pelo botão de engrenagem no cabeçalho.
+- O PDF usa nome, contato, endereço e logo da empresa; sem empresa, mostra o cabeçalho do WoodKun.
+- O logo enviado é convertido para PNG e reduzido com `sharp` antes de ir para o PDF (o react-pdf não lê WebP). O tamanho no PDF é calculado pela proporção real da imagem (`objectFit`/`objectPosition` do react-pdf não funcionaram de forma confiável).
+
+## Imagens
+
+- Upload por `POST /api/uploads` (multipart, campo `file`), servido por `GET /api/uploads/:fileName`. Arquivos em `storage/uploads/` (fora do git e fora de `public/`, que em produção só serve o que existia no build).
+- Só JPG, PNG e WebP até 5 MB, conferidos pelos bytes do arquivo (não pela extensão). Nome gerado com `randomUUID()`; o nome é validado por regex antes de ler do disco (evita path traversal).
+- O campo `imageUrl` usa `imageUrlSchema` (`src/schemas/common.ts`): só `""` ou URLs do nosso upload.
+- Os services apagam o arquivo antigo (`deleteImage`) ao trocar/remover a imagem e ao excluir o registro.
+- No form: `ImageUpload` ligado com `Controller`; nas tabelas: `Thumbnail` (`next/image`, gera miniatura).
 
 ## Exportação (PDF e CSV)
 

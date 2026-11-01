@@ -2,10 +2,11 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useForm } from "react-hook-form"
+import { Controller, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 
 import { Field } from "@/components/form/Field"
+import { ImageUpload } from "@/components/form/ImageUpload"
 import { NativeSelect } from "@/components/form/NativeSelect"
 import { Button } from "@/components/shadcn/button"
 import { Input } from "@/components/shadcn/input"
@@ -54,6 +55,7 @@ function MaterialFormFields({ material }: { material?: MaterialResponse }) {
 
   const {
     register,
+    control,
     handleSubmit,
     setError,
     formState: { errors },
@@ -64,6 +66,7 @@ function MaterialFormFields({ material }: { material?: MaterialResponse }) {
       description: material?.description ?? "",
       measurementUnit: material?.measurementUnit ?? "UN",
       unitPrice: material?.unitPrice,
+      imageUrl: material?.imageUrl ?? "",
     },
   })
 
@@ -87,6 +90,15 @@ function MaterialFormFields({ material }: { material?: MaterialResponse }) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="max-w-2xl space-y-5">
+      <Field label="Imagem" htmlFor="imageUrl" error={errors.imageUrl?.message}>
+        {/* Controller: liga ao form um componente que não é <input> nativo (não funciona com register) */}
+        <Controller
+          control={control}
+          name="imageUrl"
+          render={({ field }) => <ImageUpload id="imageUrl" value={field.value} onChange={field.onChange} />}
+        />
+      </Field>
+
       <Field label="Nome" htmlFor="name" error={errors.name?.message}>
         <Input id="name" placeholder="Ex.: Chapa MDF Branco 15mm" {...register("name")} />
       </Field>

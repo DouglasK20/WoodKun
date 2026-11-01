@@ -3,12 +3,13 @@
 import { useMemo, useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useFieldArray, useForm, useWatch } from "react-hook-form"
+import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Plus, Trash2 } from "lucide-react"
 
 import { Field } from "@/components/form/Field"
 import { FormSection } from "@/components/form/FormSection"
+import { ImageUpload } from "@/components/form/ImageUpload"
 import { NativeSelect } from "@/components/form/NativeSelect"
 import { Button } from "@/components/shadcn/button"
 import { Input } from "@/components/shadcn/input"
@@ -81,6 +82,7 @@ function ProductFormFields({ product, materials }: ProductFormFieldsProps) {
       name: product?.name ?? "",
       description: product?.description ?? "",
       profitMargin: product?.profitMargin ?? 0,
+      imageUrl: product?.imageUrl ?? "",
       // No form guardamos só o que é salvo; nome e preço vêm da lista de materiais
       materials: product?.materials.map(({ materialId, quantity }) => ({ materialId, quantity })) ?? [],
     },
@@ -144,6 +146,15 @@ function ProductFormFields({ product, materials }: ProductFormFieldsProps) {
 
           <Field label="Descrição" htmlFor="description" error={errors.description?.message} className="sm:col-span-6">
             <Textarea id="description" rows={2} placeholder="Medidas, acabamento, detalhes…" {...register("description")} />
+          </Field>
+
+          <Field label="Imagem" htmlFor="imageUrl" error={errors.imageUrl?.message} className="sm:col-span-6">
+            {/* Controller: liga ao form um componente que não é <input> nativo (não funciona com register) */}
+            <Controller
+              control={control}
+              name="imageUrl"
+              render={({ field }) => <ImageUpload id="imageUrl" value={field.value} onChange={field.onChange} />}
+            />
           </Field>
         </FormSection>
 

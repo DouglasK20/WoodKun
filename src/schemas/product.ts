@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { imageUrlSchema } from "./common"
 
 export const productMaterialSchema = z.object({
   materialId: z.number().int().positive(),
@@ -16,6 +17,7 @@ export const productSchema = z.object({
     .number({ error: "Informe a margem" })
     .min(0, "A margem não pode ser negativa")
     .max(999.99, "Margem muito alta"),
+  imageUrl: imageUrlSchema,
   materials: z
     .array(productMaterialSchema)
     .min(1, "Adicione pelo menos um material")

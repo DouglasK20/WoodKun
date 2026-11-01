@@ -20,7 +20,8 @@ O WoodKun ajuda a montar orçamentos de móveis planejados a partir dos materiai
 | Orçamentos: itens (materiais ou produtos) com preço congelado, quantidade e valor editáveis, desconto e status | ✅ Pronto |
 | Início: listagem de orçamentos com busca e filtro por status | ✅ Pronto |
 | Exportação de orçamentos em PDF e CSV | ✅ Pronto |
-| Imagens de materiais e produtos | 📋 Planejado |
+| Imagens de materiais e produtos | ✅ Pronto |
+| Configurações da empresa (dados e logo no cabeçalho do PDF) | ✅ Pronto |
 
 ## Tecnologias
 
@@ -53,15 +54,19 @@ npm run db:seed
 npm run dev
 ```
 
-Acesse [http://localhost:3000](http://localhost:3000).
+Acesse [http://localhost:3000](http://localhost:3000) e preencha os dados da sua marcenaria em **Configurações** (ícone de engrenagem no topo): eles aparecem no cabeçalho dos orçamentos em PDF.
 
 > O MySQL usa a porta **3307** para não conflitar com outro MySQL que já esteja rodando na 3306.
+
+> Rode só **um** `npm run dev` por vez nesta pasta: dois servidores Next escrevendo na mesma `.next` corrompem os arquivos um do outro.
+
+> As imagens enviadas ficam em `storage/uploads/` (fora do git). Em produção, essa pasta precisa ser persistente (volume/disco), senão as imagens somem a cada deploy.
 
 ## Scripts
 
 | Comando | O que faz |
 |---|---|
-| `npm run dev` | Servidor de desenvolvimento |
+| `npm run dev` | Servidor de desenvolvimento (com Turbopack) |
 | `npm run build` | Build de produção |
 | `npm run lint` | Verifica o código com ESLint |
 | `npm run db:generate` | Gera uma migration a partir das mudanças em `src/db/schema.ts` |

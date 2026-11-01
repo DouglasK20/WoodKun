@@ -14,7 +14,8 @@ export class ApiError extends Error {
 export async function apiFetch<T>(url: string, init?: RequestInit): Promise<T> {
   const response = await fetch(url, {
     ...init,
-    headers: { "Content-Type": "application/json", ...init?.headers },
+    // Com FormData (upload) o navegador define o Content-Type sozinho, incluindo o separador das partes
+    headers: init?.body instanceof FormData ? init.headers : { "Content-Type": "application/json", ...init?.headers },
   })
 
   if (!response.ok) {

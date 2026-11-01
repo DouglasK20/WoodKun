@@ -4,6 +4,7 @@ import Link from "next/link"
 import { ColumnDef } from "@tanstack/react-table"
 import { Pencil, Trash2 } from "lucide-react"
 
+import { Thumbnail } from "@/components/Thumbnail"
 import { Button } from "@/components/shadcn/button"
 import { DataTableColumnHeader } from "@/components/data_table/_components/DataTableColumnHeader"
 import { MEASUREMENT_UNIT_LABEL } from "@/db/constants"
@@ -49,6 +50,12 @@ export const columns: ColumnDef<MaterialResponse>[] = [
       <DataTableColumnHeader column={column} title="Nome" />
     ),
     enableSorting: true,
+    cell: ({ row }) => (
+      <div className="flex items-center gap-3">
+        <Thumbnail src={row.original.imageUrl} alt={row.original.name} />
+        <span>{row.original.name}</span>
+      </div>
+    ),
   },
   {
     accessorKey: "description",
