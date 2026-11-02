@@ -139,7 +139,11 @@ function DataTableView<TData>({
               </TableRow>
             ))}
           </TableHeader>
-          <TableBody>
+          {/* key = linhas exibidas: muda com busca/filtro/ordenação/página, e o React recria o corpo (com fade) */}
+          <TableBody
+            key={table.getRowModel().rows.map((row) => row.id).join(",")}
+            className="animate-in fade-in duration-200"
+          >
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow

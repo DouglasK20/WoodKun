@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { KeyRound, Mail, Phone } from "lucide-react"
+import { toast } from "sonner"
 
 import { Field } from "@/components/form/Field"
 import { PasswordInput } from "@/components/form/PasswordInput"
@@ -41,7 +42,8 @@ export function LoginForm({ redirectTo, support }: LoginFormProps) {
 
   function onSubmit(values: LoginInput) {
     login.mutate(values, {
-      onSuccess: () => {
+      onSuccess: (data) => {
+        toast.success(`Bem-vindo, ${data.user.name.split(" ")[0]}!`)
         // replace: o login não fica no histórico (o "voltar" do navegador não volta para cá)
         router.replace(redirectTo)
         // refresh: o layout (server component) roda de novo, agora enxergando o cookie da sessão

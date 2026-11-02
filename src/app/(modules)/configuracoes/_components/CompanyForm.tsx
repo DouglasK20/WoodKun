@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { Controller, FormProvider, useForm, type FieldErrors } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { CircleCheck } from "lucide-react"
+import { toast } from "sonner"
 
 import { AddressFields } from "@/components/form/AddressFields"
 import { Field } from "@/components/form/Field"
@@ -97,7 +97,10 @@ function CompanyFormFields({ company }: { company: CompanyResponse | null }) {
   function onSubmit(values: CompanyInput) {
     saveCompany.mutate(values, {
       // reset com o que foi salvo: o form volta a ficar "sem alterações" (isDirty = false)
-      onSuccess: (saved) => reset(toFormValues(saved)),
+      onSuccess: (saved) => {
+        reset(toFormValues(saved))
+        toast.success("Configurações salvas")
+      },
       onError: (error) => {
         // Se a API recusou algum campo (400), mostra o erro embaixo do campo
         if (error instanceof ApiError && error.fieldErrors) {
@@ -140,7 +143,7 @@ function CompanyFormFields({ company }: { company: CompanyResponse | null }) {
           </TabsList>
 
           {/* forceMount: as abas ficam montadas (só escondidas), então campos e validação seguem funcionando */}
-          <TabsContent value="empresa" forceMount className="space-y-6 data-[state=inactive]:hidden">
+          <TabsContent value="empresa" forceMount className="space-y-6 data-[state=inactive]:hidden data-[state=active]:animate-in data-[state=active]:fade-in data-[state=active]:duration-200">
             <FormSection title="Dados da empresa">
               <Field label="Nome da empresa" htmlFor="name" error={errors.name?.message} className="sm:col-span-4">
                 <Input id="name" placeholder="Nome fantasia ou razão social" {...register("name")} />
@@ -171,13 +174,13 @@ function CompanyFormFields({ company }: { company: CompanyResponse | null }) {
             </FormSection>
           </TabsContent>
 
-          <TabsContent value="endereco" forceMount className="data-[state=inactive]:hidden">
+          <TabsContent value="endereco" forceMount className="data-[state=inactive]:hidden data-[state=active]:animate-in data-[state=active]:fade-in data-[state=active]:duration-200">
             <FormSection title="Endereço" description="Digite o CEP para preencher o endereço automaticamente.">
               <AddressFields />
             </FormSection>
           </TabsContent>
 
-          <TabsContent value="orcamentos" forceMount className="data-[state=inactive]:hidden">
+          <TabsContent value="orcamentos" forceMount className="data-[state=inactive]:hidden data-[state=active]:animate-in data-[state=active]:fade-in data-[state=active]:duration-200">
             <FormSection
               title="Condições padrão do orçamento"
               description="Já vêm preenchidas em todo orçamento novo e saem no PDF. Dá para alterar em cada orçamento."
@@ -217,13 +220,6 @@ function CompanyFormFields({ company }: { company: CompanyResponse | null }) {
           <Button type="submit" disabled={saveCompany.isPending || !isDirty} className="cursor-pointer">
             {saveCompany.isPending ? "Salvando…" : "Salvar"}
           </Button>
-          {/* Some assim que algo é alterado de novo */}
-          {saveCompany.isSuccess && !isDirty && (
-            <span className="flex items-center gap-1.5 text-sm text-success">
-              <CircleCheck className="size-4" />
-              Configurações salvas
-            </span>
-          )}
         </div>
       </form>
     </FormProvider>

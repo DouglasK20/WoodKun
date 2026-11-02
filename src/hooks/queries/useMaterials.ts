@@ -38,7 +38,9 @@ export function useSaveMaterial() {
         method: id ? "PUT" : "POST",
         body: JSON.stringify(values),
       }),
-    onSuccess: () => {
+    onSuccess: (saved) => {
+      // Já deixa o registro salvo no cache: ao virar a tela de edição, ela abre sem "carregando"
+      queryClient.setQueryData(materialKeys.detail(saved.id), saved)
       queryClient.invalidateQueries({ queryKey: materialKeys.all })
       // O preço dos produtos é calculado a partir dos materiais, então também fica desatualizado
       queryClient.invalidateQueries({ queryKey: ["products"] })

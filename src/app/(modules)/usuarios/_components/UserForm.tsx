@@ -1,11 +1,14 @@
 "use client"
 
+import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Controller, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { toast } from "sonner"
 
 import { Field } from "@/components/form/Field"
+import { FormActions, type SaveIntent } from "@/components/form/FormActions"
 import { FormSection } from "@/components/form/FormSection"
 import { Select } from "@/components/form/Select"
 import { PasswordInput } from "@/components/form/PasswordInput"
@@ -47,6 +50,7 @@ const ROLE_OPTIONS = ROLES.map((role) => ({ value: role, label: ROLE_LABEL[role]
 function NewUserForm() {
   const router = useRouter()
   const createUser = useCreateUser()
+  const [intent, setIntent] = useState<SaveIntent>("stay")
   const {
     register,
     control,
@@ -57,12 +61,21 @@ function NewUserForm() {
     defaultValues: { name: "", email: "", role: "sales", password: "" },
   })
 
-  function onSubmit(values: NewUserInput) {
-    createUser.mutate(values, { onSuccess: () => router.push("/usuarios") })
+  // "stay": continua na página (vira a edição do usuário criado); "back": volta para a listagem
+  function onSubmit(values: NewUserInput, saveIntent: SaveIntent) {
+    setIntent(saveIntent)
+    createUser.mutate(values, {
+      onSuccess: (created) => {
+        toast.success(`Usuário ${values.name} criado`)
+        if (saveIntent === "back") router.push("/usuarios")
+        // A página vira a edição do usuário criado (salvar de novo atualiza, não cria outro)
+        else router.replace(`/usuarios/cadastro?id=${created.user.id}`)
+      },
+    })
   }
 
   return (
-    <form noValidate onSubmit={handleSubmit(onSubmit)} className="max-w-2xl space-y-6">
+    <form noValidate onSubmit={handleSubmit((values) => onSubmit(values, "stay"))} className="max-w-2xl space-y-6">
       <FormSection title="Dados do usuário">
         <Field label="Nome" htmlFor="name" error={errors.name?.message} className="sm:col-span-3">
           <Input id="name" {...register("name")} />
@@ -89,14 +102,12 @@ function NewUserForm() {
 
       {createUser.error && <p className="text-sm text-destructive">{createUser.error.message}</p>}
 
-      <div className="flex gap-2">
-        <Button type="submit" disabled={createUser.isPending} className="cursor-pointer">
-          {createUser.isPending ? "Salvando…" : "Salvar"}
-        </Button>
-        <Button type="button" variant="outline" asChild>
-          <Link href="/usuarios">Cancelar</Link>
-        </Button>
-      </div>
+      <FormActions
+        pending={createUser.isPending}
+        intent={intent}
+        onSaveAndBack={handleSubmit((values) => onSubmit(values, "back"))}
+        cancelHref="/usuarios"
+      />
     </form>
   )
 }
@@ -104,6 +115,7 @@ function NewUserForm() {
 function EditUserForm({ user, adminCount }: { user: UserListItem; adminCount: number }) {
   const router = useRouter()
   const updateUser = useUpdateUser()
+  const [intent, setIntent] = useState<SaveIntent>("stay")
   const isSelf = useCurrentUser().id === user.id
 
   const {
@@ -111,23 +123,36 @@ function EditUserForm({ user, adminCount }: { user: UserListItem; adminCount: nu
     control,
     handleSubmit,
     setError,
+    reset,
     formState: { errors },
   } = useForm<EditUserInput>({
     resolver: zodResolver(editUserSchema),
     defaultValues: { role: (user.role as Role) ?? "sales", password: "" },
   })
 
-  function onSubmit(values: EditUserInput) {
+  // "stay": continua na página; "back": volta para a listagem
+  function onSubmit(values: EditUserInput, saveIntent: SaveIntent) {
+    setIntent(saveIntent)
     // Nunca deixar o sistema sem nenhum administrador ativo
     if (user.role === "admin" && values.role !== "admin" && adminCount <= 1) {
       setError("role", { message: "Este é o único administrador. Crie outro administrador antes de mudar o papel." })
       return
     }
-    updateUser.mutate({ userId: user.id, ...values }, { onSuccess: () => router.push("/usuarios") })
+    updateUser.mutate(
+      { userId: user.id, ...values },
+      {
+        onSuccess: () => {
+          toast.success(values.password ? "Papel e senha atualizados" : "Usuário atualizado")
+          if (saveIntent === "back") router.push("/usuarios")
+          // Continua na página: limpa a senha digitada e considera o resto como "sem alterações"
+          else reset({ role: values.role, password: "" })
+        },
+      }
+    )
   }
 
   return (
-    <form noValidate onSubmit={handleSubmit(onSubmit)} className="max-w-2xl space-y-6">
+    <form noValidate onSubmit={handleSubmit((values) => onSubmit(values, "stay"))} className="max-w-2xl space-y-6">
       <FormSection title={user.name} description={user.email}>
         <Field label="Papel" htmlFor="role" error={errors.role?.message} className="sm:col-span-6">
           {/* Mudar o próprio papel poderia tirar o seu acesso a esta tela. Não usamos disabled: o react-hook-form
@@ -157,14 +182,12 @@ function EditUserForm({ user, adminCount }: { user: UserListItem; adminCount: nu
 
       {updateUser.error && <p className="text-sm text-destructive">{updateUser.error.message}</p>}
 
-      <div className="flex gap-2">
-        <Button type="submit" disabled={updateUser.isPending} className="cursor-pointer">
-          {updateUser.isPending ? "Salvando…" : "Salvar"}
-        </Button>
-        <Button type="button" variant="outline" asChild>
-          <Link href="/usuarios">Cancelar</Link>
-        </Button>
-      </div>
+      <FormActions
+        pending={updateUser.isPending}
+        intent={intent}
+        onSaveAndBack={handleSubmit((values) => onSubmit(values, "back"))}
+        cancelHref="/usuarios"
+      />
     </form>
   )
 }

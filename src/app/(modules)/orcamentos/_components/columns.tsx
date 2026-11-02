@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { ColumnDef } from "@tanstack/react-table"
 import { FileText, Pencil, Trash2 } from "lucide-react"
+import { toast } from "sonner"
 
 import { Button } from "@/components/shadcn/button"
 import { useCan } from "@/components/providers/UserProvider"
@@ -20,7 +21,8 @@ function QuoteActions({ quote }: { quote: QuoteListResponse }) {
     if (!confirm(`Excluir o orçamento "${quote.title}"?`)) return
 
     deleteQuote.mutate(quote.id, {
-      onError: (error) => alert(error.message),
+      onSuccess: () => toast.success("Orçamento excluído"),
+      onError: (error) => toast.error(error.message),
     })
   }
 

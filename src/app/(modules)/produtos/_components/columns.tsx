@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { ColumnDef } from "@tanstack/react-table"
 import { Pencil, Trash2 } from "lucide-react"
+import { toast } from "sonner"
 
 import { Thumbnail } from "@/components/Thumbnail"
 import { Button } from "@/components/shadcn/button"
@@ -20,7 +21,8 @@ function ProductActions({ product }: { product: ProductListResponse }) {
     if (!confirm(`Excluir o produto "${product.name}"?`)) return
 
     deleteProduct.mutate(product.id, {
-      onError: (error) => alert(error.message),
+      onSuccess: () => toast.success("Produto excluído"),
+      onError: (error) => toast.error(error.message),
     })
   }
 

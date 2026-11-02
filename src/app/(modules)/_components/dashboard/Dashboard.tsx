@@ -43,7 +43,7 @@ export function Dashboard() {
   const rate = data.approvalRate
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 animate-in fade-in duration-300">
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatTile
           label={`Orçado em ${current}`}

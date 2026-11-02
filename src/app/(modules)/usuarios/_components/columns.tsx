@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { ColumnDef } from "@tanstack/react-table"
 import { Ban, CircleCheck, Pencil, Trash2 } from "lucide-react"
+import { toast } from "sonner"
 
 import { Button } from "@/components/shadcn/button"
 import { useCurrentUser } from "@/components/providers/UserProvider"
@@ -21,12 +22,21 @@ function UserActions({ user }: { user: UserListItem }) {
   function handleToggleBan() {
     const action = user.banned ? "Desbloquear" : "Bloquear"
     if (!confirm(`${action} o usuário "${user.name}"?`)) return
-    setBanned.mutate({ userId: user.id, banned: !user.banned }, { onError: (error) => alert(error.message) })
+    setBanned.mutate(
+      { userId: user.id, banned: !user.banned },
+      {
+        onSuccess: () => toast.success(user.banned ? `${user.name} desbloqueado` : `${user.name} bloqueado`),
+        onError: (error) => toast.error(error.message),
+      }
+    )
   }
 
   function handleRemove() {
     if (!confirm(`Excluir o usuário "${user.name}"? Essa ação não pode ser desfeita.`)) return
-    removeUser.mutate(user.id, { onError: (error) => alert(error.message) })
+    removeUser.mutate(user.id, {
+      onSuccess: () => toast.success("Usuário excluído"),
+      onError: (error) => toast.error(error.message),
+    })
   }
 
   return (

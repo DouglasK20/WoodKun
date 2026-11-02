@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { ColumnDef } from "@tanstack/react-table"
 import { Pencil, Trash2 } from "lucide-react"
+import { toast } from "sonner"
 
 import { Thumbnail } from "@/components/Thumbnail"
 import { Button } from "@/components/shadcn/button"
@@ -21,7 +22,8 @@ function MaterialActions({ material }: { material: MaterialResponse }) {
     if (!confirm(`Excluir o material "${material.name}"?`)) return
 
     deleteMaterial.mutate(material.id, {
-      onError: (error) => alert(error.message),
+      onSuccess: () => toast.success("Material excluído"),
+      onError: (error) => toast.error(error.message),
     })
   }
 

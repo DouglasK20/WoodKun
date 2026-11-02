@@ -7,9 +7,11 @@ import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { addDays, format } from "date-fns"
 import { FileSpreadsheet, FileText, Plus, Trash2 } from "lucide-react"
+import { toast } from "sonner"
 
 import { DatePicker } from "@/components/form/DatePicker"
 import { Field } from "@/components/form/Field"
+import { FormActions, type SaveIntent } from "@/components/form/FormActions"
 import { FormSection } from "@/components/form/FormSection"
 import { Select } from "@/components/form/Select"
 import { Button } from "@/components/shadcn/button"
@@ -77,6 +79,8 @@ export function QuoteForm({ quoteId }: QuoteFormProps) {
   // Só monta o formulário depois de ter os dados, porque o react-hook-form lê os defaultValues uma vez só
   return (
     <QuoteFormFields
+      // key: um orçamento novo que vira edição é recriado com os dados salvos
+      key={quote.data?.id ?? "novo"}
       quote={quote.data}
       customers={customers.data ?? []}
       materials={materials.data ?? []}
@@ -105,6 +109,7 @@ function newQuoteTerms(company: CompanyResponse | null) {
 
 function QuoteFormFields({ quote, customers, materials, products, company }: QuoteFormFieldsProps) {
   const router = useRouter()
+  const [intent, setIntent] = useState<SaveIntent>("stay")
   const saveQuote = useSaveQuote()
 
   const {
@@ -112,6 +117,7 @@ function QuoteFormFields({ quote, customers, materials, products, company }: Quo
     control,
     handleSubmit,
     setError,
+    reset,
     formState: { errors, isDirty },
   } = useForm<QuoteInput>({
     resolver: zodResolver(quoteSchema),
@@ -143,11 +149,20 @@ function QuoteFormFields({ quote, customers, materials, products, company }: Quo
   )
   const total = calculateQuoteTotal(subtotal, toNumber(discount))
 
-  function onSubmit(values: QuoteInput) {
+  // "stay": continua na página; "back": volta para a listagem
+  function onSubmit(values: QuoteInput, saveIntent: SaveIntent) {
+    setIntent(saveIntent)
     saveQuote.mutate(
       { id: quote?.id, values },
       {
-        onSuccess: () => router.push("/orcamentos"),
+        onSuccess: (saved) => {
+          toast.success(quote ? "Orçamento atualizado" : "Orçamento cadastrado")
+          if (saveIntent === "back") router.push("/orcamentos")
+          // Orçamento novo: a página vira a edição do orçamento criado (salvar de novo atualiza, não duplica)
+          else if (!quote) router.replace(`/orcamentos/cadastro?id=${saved.id}`)
+          // Edição: o form passa a considerar o que foi salvo como "sem alterações"
+          else reset(values)
+        },
         onError: (error) => {
           // Se a API recusou algum campo (400), mostra o erro embaixo do campo
           if (error instanceof ApiError && error.fieldErrors) {
@@ -163,7 +178,7 @@ function QuoteFormFields({ quote, customers, materials, products, company }: Quo
   const itemsError = errors.items?.message ?? errors.items?.root?.message
 
   return (
-    <form noValidate onSubmit={handleSubmit(onSubmit)} className="grid items-start gap-6 lg:grid-cols-3">
+    <form noValidate onSubmit={handleSubmit((values) => onSubmit(values, "stay"))} className="grid items-start gap-6 lg:grid-cols-3">
       <div className="space-y-6 lg:col-span-2">
         <FormSection title="Dados do orçamento">
           <Field label="Título" htmlFor="title" error={errors.title?.message} className="sm:col-span-4">
@@ -396,14 +411,13 @@ function QuoteFormFields({ quote, customers, materials, products, company }: Quo
 
         {saveQuote.error && <p className="text-sm text-destructive">{saveQuote.error.message}</p>}
 
-        <div className="flex gap-2">
-          <Button type="submit" disabled={saveQuote.isPending} className="flex-1 cursor-pointer">
-            {saveQuote.isPending ? "Salvando…" : "Salvar"}
-          </Button>
-          <Button type="button" variant="outline" asChild>
-            <Link href="/orcamentos">Cancelar</Link>
-          </Button>
-        </div>
+        <FormActions
+          pending={saveQuote.isPending}
+          intent={intent}
+          onSaveAndBack={handleSubmit((values) => onSubmit(values, "back"))}
+          cancelHref="/orcamentos"
+          layout="stacked"
+        />
 
         {/* Exportar só existe para orçamento já salvo: os arquivos são gerados pela API a partir do banco */}
         {quote && (

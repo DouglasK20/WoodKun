@@ -39,7 +39,9 @@ export function useSaveQuote() {
         method: id ? "PUT" : "POST",
         body: JSON.stringify(values),
       }),
-    onSuccess: () => {
+    onSuccess: (saved) => {
+      // Já deixa o registro salvo no cache: ao virar a tela de edição, ela abre sem "carregando"
+      queryClient.setQueryData(quoteKeys.detail(saved.id), saved)
       queryClient.invalidateQueries({ queryKey: quoteKeys.all })
       // Os indicadores do Início são calculados a partir dos orçamentos
       queryClient.invalidateQueries({ queryKey: ["dashboard"] })

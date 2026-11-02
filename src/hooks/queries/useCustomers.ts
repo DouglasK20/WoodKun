@@ -38,7 +38,11 @@ export function useSaveCustomer() {
         method: id ? "PUT" : "POST",
         body: JSON.stringify(values),
       }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: customerKeys.all }),
+    onSuccess: (saved) => {
+      // Já deixa o registro salvo no cache: ao virar a tela de edição, ela abre sem "carregando"
+      queryClient.setQueryData(customerKeys.detail(saved.id), saved)
+      return queryClient.invalidateQueries({ queryKey: customerKeys.all })
+    },
   })
 }
 

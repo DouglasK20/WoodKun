@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { ColumnDef } from "@tanstack/react-table"
 import { Pencil, Trash2 } from "lucide-react"
+import { toast } from "sonner"
 
 import { Button } from "@/components/shadcn/button"
 import { useCan } from "@/components/providers/UserProvider"
@@ -18,7 +19,8 @@ function CustomerActions({ customer }: { customer: CustomerResponse }) {
     if (!confirm(`Excluir o cliente "${customer.name}"?`)) return
 
     deleteCustomer.mutate(customer.id, {
-      onError: (error) => alert(error.message),
+      onSuccess: () => toast.success("Cliente excluído"),
+      onError: (error) => toast.error(error.message),
     })
   }
 

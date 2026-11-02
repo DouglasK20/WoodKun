@@ -27,7 +27,7 @@ export function useUsers() {
 export type UserListItem = NonNullable<ReturnType<typeof useUsers>["data"]>[number]
 
 // Toda alteração recarrega a lista
-function useUserMutation<Variables>(mutationFn: (variables: Variables) => Promise<unknown>) {
+function useUserMutation<Variables, Result>(mutationFn: (variables: Variables) => Promise<Result>) {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn,

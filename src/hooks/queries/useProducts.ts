@@ -40,7 +40,11 @@ export function useSaveProduct() {
         method: id ? "PUT" : "POST",
         body: JSON.stringify(values),
       }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: productKeys.all }),
+    onSuccess: (saved) => {
+      // Já deixa o registro salvo no cache: ao virar a tela de edição, ela abre sem "carregando"
+      queryClient.setQueryData(productKeys.detail(saved.id), saved)
+      return queryClient.invalidateQueries({ queryKey: productKeys.all })
+    },
   })
 }
 

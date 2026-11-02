@@ -81,7 +81,7 @@ export function DatePicker({ id, value, onChange, onBlur, placeholder = "Selecio
         <Popover.Content
           align="start"
           sideOffset={6}
-          className="z-50 rounded-lg border border-border bg-popover p-3 text-popover-foreground shadow-lg"
+          className="z-50 rounded-lg border border-border bg-popover p-3 text-popover-foreground shadow-lg data-[state=open]:animate-in data-[state=open]:fade-in data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out data-[state=closed]:zoom-out-95"
         >
           {presets && presets.length > 0 && (
             <div className="mb-2 flex flex-wrap gap-1.5 border-b border-border pb-3">

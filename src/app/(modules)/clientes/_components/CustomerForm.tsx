@@ -1,12 +1,15 @@
 "use client"
 
+import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { FormProvider, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { toast } from "sonner"
 
 import { AddressFields } from "@/components/form/AddressFields"
 import { Field } from "@/components/form/Field"
+import { FormActions, type SaveIntent } from "@/components/form/FormActions"
 import { FormSection } from "@/components/form/FormSection"
 import { Button } from "@/components/shadcn/button"
 import { Input } from "@/components/shadcn/input"
@@ -45,11 +48,12 @@ export function CustomerForm({ customerId }: CustomerFormProps) {
   }
 
   // Só monta o formulário depois de ter os dados, porque o react-hook-form lê os defaultValues uma vez só
-  return <CustomerFormFields customer={customer} />
+  return <CustomerFormFields key={customer?.id ?? "novo"} customer={customer} />
 }
 
 function CustomerFormFields({ customer }: { customer?: CustomerResponse }) {
   const router = useRouter()
+  const [intent, setIntent] = useState<SaveIntent>("stay")
   const saveCustomer = useSaveCustomer()
 
   const form = useForm<CustomerInput>({
@@ -74,15 +78,25 @@ function CustomerFormFields({ customer }: { customer?: CustomerResponse }) {
     register,
     handleSubmit,
     setError,
+    reset,
     formState: { errors },
   } = form
 
   // Só é chamado se a validação do zod passar
-  function onSubmit(values: CustomerInput) {
+  // "stay": continua na página; "back": volta para a listagem
+  function onSubmit(values: CustomerInput, saveIntent: SaveIntent) {
+    setIntent(saveIntent)
     saveCustomer.mutate(
       { id: customer?.id, values },
       {
-        onSuccess: () => router.push("/clientes"),
+        onSuccess: (saved) => {
+          toast.success(customer ? "Cliente atualizado" : "Cliente cadastrado")
+          if (saveIntent === "back") router.push("/clientes")
+          // Cadastro novo: a página vira a edição do registro criado (salvar de novo atualiza, não duplica)
+          else if (!customer) router.replace(`/clientes/cadastro?id=${saved.id}`)
+          // Edição: o form passa a considerar o que foi salvo como "sem alterações"
+          else reset(values)
+        },
         onError: (error) => {
           // Se a API recusou algum campo (400), mostra o erro embaixo do campo
           if (error instanceof ApiError && error.fieldErrors) {
@@ -98,7 +112,7 @@ function CustomerFormFields({ customer }: { customer?: CustomerResponse }) {
   return (
     // FormProvider: deixa o form disponível para componentes filhos (AddressFields) via useFormContext
     <FormProvider {...form}>
-      <form noValidate onSubmit={handleSubmit(onSubmit)} className="max-w-3xl space-y-6">
+      <form noValidate onSubmit={handleSubmit((values) => onSubmit(values, "stay"))} className="max-w-3xl space-y-6">
         <FormSection title="Dados do cliente">
           <Field label="Nome" htmlFor="name" error={errors.name?.message} className="sm:col-span-4">
             <Input id="name" placeholder="Nome completo ou razão social" {...register("name")} />
@@ -134,14 +148,12 @@ function CustomerFormFields({ customer }: { customer?: CustomerResponse }) {
 
         {saveCustomer.error && <p className="text-sm text-destructive">{saveCustomer.error.message}</p>}
 
-        <div className="flex gap-2">
-          <Button type="submit" disabled={saveCustomer.isPending} className="cursor-pointer">
-            {saveCustomer.isPending ? "Salvando…" : "Salvar"}
-          </Button>
-          <Button type="button" variant="outline" asChild>
-            <Link href="/clientes">Cancelar</Link>
-          </Button>
-        </div>
+        <FormActions
+          pending={saveCustomer.isPending}
+          intent={intent}
+          onSaveAndBack={handleSubmit((values) => onSubmit(values, "back"))}
+          cancelHref="/clientes"
+        />
       </form>
     </FormProvider>
   )

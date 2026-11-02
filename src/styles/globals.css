@@ -210,3 +210,14 @@ body .rdp-root .rdp-selected .rdp-day_button:hover {
   color: var(--primary-foreground);
   font-weight: 600;
 }
+
+/* Quem configurou o sistema para reduzir movimento (acessibilidade) não vê animações nem transições longas */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

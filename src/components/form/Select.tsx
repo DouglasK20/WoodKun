@@ -122,7 +122,8 @@ function useSharedProps<IsMulti extends boolean>({
       indicatorsContainer: () => "gap-1.5 pl-2",
       menuPortal: () => "!z-50",
       // min-w: selects estreitos (como a UF) ainda abrem um menu legível
-      menu: () => "mt-1 min-w-48 overflow-hidden rounded-md border border-border bg-popover text-popover-foreground shadow-lg",
+      menu: () =>
+        "mt-1 min-w-48 overflow-hidden rounded-md border border-border bg-popover text-popover-foreground shadow-lg animate-in fade-in zoom-in-95 duration-150",
       menuList: () => "max-h-64 p-1",
       option: ({ isFocused, isSelected }) =>
         cn("cursor-pointer rounded-sm px-2 py-1.5 text-sm", isFocused && "bg-accent", isSelected && "font-medium text-primary"),
