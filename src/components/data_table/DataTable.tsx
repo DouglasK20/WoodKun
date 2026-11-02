@@ -13,7 +13,9 @@ import {
   useReactTable,
 } from "@tanstack/react-table"
 import React, { useMemo, useState } from "react"
+import type { RowData } from "@tanstack/react-table"
 
+import { cn } from "@/utils/cn"
 import {
   Table,
   TableBody,
@@ -26,6 +28,21 @@ import { DataTablePagination } from "./_components/DataTablePagination"
 import { DataTableProvider } from "./_components/DataTableProvider"
 import { DataTableToolbar } from "./_components/DataTableToolbar"
 import { useDataTableContext } from "./_components/DataTableProvider"
+
+// Opções extras por coluna: { meta: { align: "right" } } alinha cabeçalho e células;
+// numeric: true também alinha à direita e usa algarismos de largura fixa (os centavos ficam um embaixo do outro)
+declare module "@tanstack/react-table" {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- os genéricos precisam ter os mesmos nomes da declaração original
+  interface ColumnMeta<TData extends RowData, TValue> {
+    align?: "left" | "center" | "right"
+    numeric?: boolean
+  }
+}
+
+function alignClass(meta: { align?: "left" | "center" | "right"; numeric?: boolean } | undefined) {
+  const align = meta?.numeric ? "right" : meta?.align
+  return cn(align === "right" && "text-right", align === "center" && "text-center", meta?.numeric && "tabular-nums")
+}
 
 type SearchConfig = {
   placeholder?: string
@@ -126,7 +143,7 @@ function DataTableView<TData>({
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
-                    className="bg-wood-muted/50 border-b-2 border-wood-border font-medium"
+                    className={cn("bg-wood-muted/50 border-b-2 border-wood-border font-medium", alignClass(header.column.columnDef.meta))}
                   >
                     {header.isPlaceholder
                       ? null
@@ -156,7 +173,7 @@ function DataTableView<TData>({
                   {row.getVisibleCells().map((cell) => (
                     <TableCell
                       key={cell.id}
-                      className="border-wood-border"
+                      className={cn("border-wood-border", alignClass(cell.column.columnDef.meta))}
                     >
                       {flexRender(
                         cell.column.columnDef.cell,

@@ -1,14 +1,13 @@
 "use client"
 
-import Link from "next/link"
 import { ColumnDef } from "@tanstack/react-table"
 import { Pencil, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 
 import { Thumbnail } from "@/components/Thumbnail"
-import { Button } from "@/components/shadcn/button"
 import { useCan } from "@/components/providers/UserProvider"
 import { DataTableColumnHeader } from "@/components/data_table/_components/DataTableColumnHeader"
+import { RowActionButton, RowActionLink, RowActions } from "@/components/data_table/_components/RowActions"
 import { useDeleteProduct, type ProductListResponse } from "@/hooks/queries/useProducts"
 import { formatCurrency } from "@/utils/format"
 
@@ -27,27 +26,14 @@ function ProductActions({ product }: { product: ProductListResponse }) {
   }
 
   return (
-    <div className="flex justify-end gap-1">
+    <RowActions>
       {canEdit && (
         <>
-          <Button variant="ghost" size="icon" asChild title="Editar">
-            <Link href={`/produtos/cadastro?id=${product.id}`}>
-              <Pencil />
-            </Link>
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            title="Excluir"
-            className="cursor-pointer text-destructive hover:text-destructive"
-            disabled={deleteProduct.isPending}
-            onClick={handleDelete}
-          >
-            <Trash2 />
-          </Button>
+          <RowActionLink href={`/produtos/cadastro?id=${product.id}`} title="Editar" icon={Pencil} />
+          <RowActionButton title="Excluir" icon={Trash2} destructive disabled={deleteProduct.isPending} onClick={handleDelete} />
         </>
       )}
-    </div>
+    </RowActions>
   )
 }
 
@@ -72,10 +58,12 @@ export const columns: ColumnDef<ProductListResponse>[] = [
   },
   {
     accessorKey: "materialCount",
+    meta: { numeric: true },
     header: "Materiais",
   },
   {
     accessorKey: "materialsCost",
+    meta: { numeric: true },
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Custo" />
     ),
@@ -84,11 +72,13 @@ export const columns: ColumnDef<ProductListResponse>[] = [
   },
   {
     accessorKey: "profitMargin",
+    meta: { numeric: true },
     header: "Margem",
     cell: ({ row }) => `${row.original.profitMargin.toLocaleString("pt-BR")}%`,
   },
   {
     accessorKey: "price",
+    meta: { numeric: true },
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Preço final" />
     ),
@@ -97,7 +87,9 @@ export const columns: ColumnDef<ProductListResponse>[] = [
   },
   {
     id: "actions",
-    header: () => <div className="text-right">Ações</div>,
+    // Sem rótulo visível (o padrão em tabelas); o texto continua para leitores de tela
+    header: () => <span className="sr-only">Ações</span>,
+    meta: { align: "right" },
     cell: ({ row }) => <ProductActions product={row.original} />,
   },
 ]

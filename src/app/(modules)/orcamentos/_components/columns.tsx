@@ -1,13 +1,12 @@
 "use client"
 
-import Link from "next/link"
 import { ColumnDef } from "@tanstack/react-table"
 import { FileText, Pencil, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 
-import { Button } from "@/components/shadcn/button"
 import { useCan } from "@/components/providers/UserProvider"
 import { DataTableColumnHeader } from "@/components/data_table/_components/DataTableColumnHeader"
+import { RowActionButton, RowActionLink, RowActions } from "@/components/data_table/_components/RowActions"
 import { useDeleteQuote, type QuoteListResponse } from "@/hooks/queries/useQuotes"
 import { formatCurrency, formatDate } from "@/utils/format"
 import { QuoteStatusBadge } from "./QuoteStatusBadge"
@@ -27,32 +26,15 @@ function QuoteActions({ quote }: { quote: QuoteListResponse }) {
   }
 
   return (
-    <div className="flex justify-end gap-1">
-      <Button variant="ghost" size="icon" asChild title="Abrir PDF">
-        <a href={`/api/quotes/${quote.id}/pdf`} target="_blank" rel="noopener">
-          <FileText />
-        </a>
-      </Button>
+    <RowActions>
+      <RowActionLink href={`/api/quotes/${quote.id}/pdf`} title="Abrir PDF" icon={FileText} external />
       {canEdit && (
         <>
-          <Button variant="ghost" size="icon" asChild title="Editar">
-            <Link href={`/orcamentos/cadastro?id=${quote.id}`}>
-              <Pencil />
-            </Link>
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            title="Excluir"
-            className="cursor-pointer text-destructive hover:text-destructive"
-            disabled={deleteQuote.isPending}
-            onClick={handleDelete}
-          >
-            <Trash2 />
-          </Button>
+          <RowActionLink href={`/orcamentos/cadastro?id=${quote.id}`} title="Editar" icon={Pencil} />
+          <RowActionButton title="Excluir" icon={Trash2} destructive disabled={deleteQuote.isPending} onClick={handleDelete} />
         </>
       )}
-    </div>
+    </RowActions>
   )
 }
 
@@ -100,6 +82,7 @@ export const columns: ColumnDef<QuoteListResponse>[] = [
   },
   {
     accessorKey: "total",
+    meta: { numeric: true },
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Total" />
     ),
@@ -108,7 +91,9 @@ export const columns: ColumnDef<QuoteListResponse>[] = [
   },
   {
     id: "actions",
-    header: () => <div className="text-right">Ações</div>,
+    // Sem rótulo visível (o padrão em tabelas); o texto continua para leitores de tela
+    header: () => <span className="sr-only">Ações</span>,
+    meta: { align: "right" },
     cell: ({ row }) => <QuoteActions quote={row.original} />,
   },
 ]

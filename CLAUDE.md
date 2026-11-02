@@ -90,6 +90,8 @@ materiais/
 ```
 
 - Botões da listagem (ex.: "Novo …") vão na prop `toolbarActions` do `DataTable`, na mesma linha da busca.
+- Ações de cada linha com `RowActions` + `RowActionLink`/`RowActionButton` (`src/components/data_table/_components/RowActions.tsx`): ícones cinza que ganham cor no hover (`destructive` para excluir). A coluna `actions` tem cabeçalho `sr-only` e `meta: { align: "right" }`.
+- Colunas de valores/quantidades usam `meta: { numeric: true }` (direita + `tabular-nums`, cabeçalho ordenável com o ícone à esquerda); `meta: { align }` para outros alinhamentos.
 
 ### Formulários
 

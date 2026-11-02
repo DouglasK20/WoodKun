@@ -1,13 +1,12 @@
 "use client"
 
-import Link from "next/link"
 import { ColumnDef } from "@tanstack/react-table"
 import { Ban, CircleCheck, Pencil, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 
-import { Button } from "@/components/shadcn/button"
 import { useCurrentUser } from "@/components/providers/UserProvider"
 import { DataTableColumnHeader } from "@/components/data_table/_components/DataTableColumnHeader"
+import { RowActionButton, RowActionLink, RowActions } from "@/components/data_table/_components/RowActions"
 import { useRemoveUser, useSetUserBanned, type UserListItem } from "@/hooks/queries/useUsers"
 import { cn } from "@/utils/cn"
 import { ROLE_LABEL, type Role } from "@/utils/permissions"
@@ -40,37 +39,15 @@ function UserActions({ user }: { user: UserListItem }) {
   }
 
   return (
-    <div className="flex justify-end gap-1">
-      <Button variant="ghost" size="icon" asChild title="Editar">
-        <Link href={`/usuarios/cadastro?id=${user.id}`}>
-          <Pencil />
-        </Link>
-      </Button>
+    <RowActions>
+      <RowActionLink href={`/usuarios/cadastro?id=${user.id}`} title="Editar" icon={Pencil} />
       {!isSelf && (
         <>
-          <Button
-            variant="ghost"
-            size="icon"
-            title={user.banned ? "Desbloquear" : "Bloquear"}
-            className="cursor-pointer"
-            disabled={setBanned.isPending}
-            onClick={handleToggleBan}
-          >
-            {user.banned ? <CircleCheck /> : <Ban />}
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            title="Excluir"
-            className="cursor-pointer text-destructive hover:text-destructive"
-            disabled={removeUser.isPending}
-            onClick={handleRemove}
-          >
-            <Trash2 />
-          </Button>
+          <RowActionButton title={user.banned ? "Desbloquear" : "Bloquear"} icon={user.banned ? CircleCheck : Ban} disabled={setBanned.isPending} onClick={handleToggleBan} />
+          <RowActionButton title="Excluir" icon={Trash2} destructive disabled={removeUser.isPending} onClick={handleRemove} />
         </>
       )}
-    </div>
+    </RowActions>
   )
 }
 
@@ -116,7 +93,9 @@ export const columns: ColumnDef<UserListItem>[] = [
   },
   {
     id: "actions",
-    header: () => <div className="text-right">Ações</div>,
+    // Sem rótulo visível (o padrão em tabelas); o texto continua para leitores de tela
+    header: () => <span className="sr-only">Ações</span>,
+    meta: { align: "right" },
     cell: ({ row }) => <UserActions user={row.original} />,
   },
 ]

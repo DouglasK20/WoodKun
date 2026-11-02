@@ -1,14 +1,13 @@
 "use client"
 
-import Link from "next/link"
 import { ColumnDef } from "@tanstack/react-table"
 import { Pencil, Trash2 } from "lucide-react"
 import { toast } from "sonner"
 
 import { Thumbnail } from "@/components/Thumbnail"
-import { Button } from "@/components/shadcn/button"
 import { useCan } from "@/components/providers/UserProvider"
 import { DataTableColumnHeader } from "@/components/data_table/_components/DataTableColumnHeader"
+import { RowActionButton, RowActionLink, RowActions } from "@/components/data_table/_components/RowActions"
 import { MEASUREMENT_UNIT_LABEL } from "@/db/constants"
 import { useDeleteMaterial, type MaterialResponse } from "@/hooks/queries/useMaterials"
 import { formatCurrency } from "@/utils/format"
@@ -28,27 +27,14 @@ function MaterialActions({ material }: { material: MaterialResponse }) {
   }
 
   return (
-    <div className="flex justify-end gap-1">
+    <RowActions>
       {canEdit && (
         <>
-          <Button variant="ghost" size="icon" asChild title="Editar">
-            <Link href={`/materiais/cadastro?id=${material.id}`}>
-              <Pencil />
-            </Link>
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            title="Excluir"
-            className="cursor-pointer text-destructive hover:text-destructive"
-            disabled={deleteMaterial.isPending}
-            onClick={handleDelete}
-          >
-            <Trash2 />
-          </Button>
+          <RowActionLink href={`/materiais/cadastro?id=${material.id}`} title="Editar" icon={Pencil} />
+          <RowActionButton title="Excluir" icon={Trash2} destructive disabled={deleteMaterial.isPending} onClick={handleDelete} />
         </>
       )}
-    </div>
+    </RowActions>
   )
 }
 
@@ -82,6 +68,7 @@ export const columns: ColumnDef<MaterialResponse>[] = [
   },
   {
     accessorKey: "unitPrice",
+    meta: { numeric: true },
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Valor" />
     ),
@@ -92,7 +79,9 @@ export const columns: ColumnDef<MaterialResponse>[] = [
   },
   {
     id: "actions",
-    header: () => <div className="text-right">Ações</div>,
+    // Sem rótulo visível (o padrão em tabelas); o texto continua para leitores de tela
+    header: () => <span className="sr-only">Ações</span>,
+    meta: { align: "right" },
     cell: ({ row }) => <MaterialActions material={row.original} />,
   },
 ]
