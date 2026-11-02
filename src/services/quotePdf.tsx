@@ -79,6 +79,8 @@ const styles = StyleSheet.create({
   },
   grandTotalValue: { fontSize: 14, fontFamily: "Helvetica-Bold", color: colors.primary },
   notes: { marginTop: 24 },
+  term: { marginBottom: 2 },
+  termLabel: { fontFamily: "Helvetica-Bold" },
   footer: {
     position: "absolute",
     bottom: 24,
@@ -205,6 +207,24 @@ function QuoteDocument({ quote, customer, company, logo }: QuoteDocumentProps) {
             <Text style={styles.grandTotalValue}>{formatCurrency(quote.total)}</Text>
           </View>
         </View>
+
+        {(quote.paymentTerms || quote.deliveryTerms) && (
+          <View style={styles.notes} wrap={false}>
+            <Text style={styles.sectionTitle}>Condições</Text>
+            {quote.paymentTerms && (
+              <Text style={styles.term}>
+                <Text style={styles.termLabel}>Pagamento: </Text>
+                {quote.paymentTerms}
+              </Text>
+            )}
+            {quote.deliveryTerms && (
+              <Text style={styles.term}>
+                <Text style={styles.termLabel}>Prazo de entrega: </Text>
+                {quote.deliveryTerms}
+              </Text>
+            )}
+          </View>
+        )}
 
         {quote.notes && (
           <View style={styles.notes} wrap={false}>

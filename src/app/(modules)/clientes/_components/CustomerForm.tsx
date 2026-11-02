@@ -98,7 +98,7 @@ function CustomerFormFields({ customer }: { customer?: CustomerResponse }) {
   return (
     // FormProvider: deixa o form disponível para componentes filhos (AddressFields) via useFormContext
     <FormProvider {...form}>
-      <form onSubmit={handleSubmit(onSubmit)} className="max-w-3xl space-y-6">
+      <form noValidate onSubmit={handleSubmit(onSubmit)} className="max-w-3xl space-y-6">
         <FormSection title="Dados do cliente">
           <Field label="Nome" htmlFor="name" error={errors.name?.message} className="sm:col-span-4">
             <Input id="name" placeholder="Nome completo ou razão social" {...register("name")} />

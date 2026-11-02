@@ -121,6 +121,10 @@ export const companySettings = mysqlTable("company_settings", {
   city: varchar("city", { length: 100 }),
   state: varchar("state", { length: 2 }),
   logoUrl: varchar("logo_url", { length: 500 }),
+  // Condições padrão: copiadas para cada orçamento novo (e editáveis nele)
+  defaultValidityDays: int("default_validity_days"),
+  paymentTerms: text("payment_terms"),
+  deliveryTerms: text("delivery_terms"),
   ...timestamps,
 })
 
@@ -159,6 +163,9 @@ export const quotes = mysqlTable("quotes", {
   status: mysqlEnum("status", QUOTE_STATUSES).notNull().default("draft"),
   discount: money("discount").notNull().default(0),
   notes: text("notes"),
+  // Condições do orçamento (cópia das condições padrão da empresa ao criar; editáveis)
+  paymentTerms: text("payment_terms"),
+  deliveryTerms: text("delivery_terms"),
   // mode "string": devolve "AAAA-MM-DD" em vez de Date, evitando o dia mudar por causa de fuso horário
   validUntil: date("valid_until", { mode: "string" }),
   ...timestamps,

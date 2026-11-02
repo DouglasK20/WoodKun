@@ -95,6 +95,7 @@ materiais/
 - Use `Field` (rótulo + campo + erro), `FormSection` (bloco com título), `Select` (react-select com busca, no visual do sistema), `DatePicker` (calendário; valor "AAAA-MM-DD", aceita `presets` de prazo), `PasswordInput` (senha com olho) e `AddressFields` de `src/components/form/`; não recriar esses componentes dentro do módulo.
 - `AddressFields` (endereço + busca de CEP) usa `useFormContext`: o form precisa estar dentro de `<FormProvider {...form}>` e ter os campos de `addressFields`.
 - Validações de contato e endereço ficam em `src/schemas/common.ts` (`contactFields`, `addressFields`); reaproveitar com spread no schema da entidade.
+- Todo `<form>` usa `noValidate`: quem valida é o zod (mensagens em português embaixo do campo). Sem isso, atributos como `min`/`type="email"` fazem o navegador barrar o envio antes do react-hook-form, com balões próprios (e, em abas escondidas, sem mostrar nada).
 - Listas dentro do form (ex.: materiais do produto) usam `useFieldArray`; valores calculados ao vivo usam `useWatch`.
 - Datas: sempre o `DatePicker` (nunca `<input type="date">`), ligado com `Controller`. As cores do calendário ficam no fim do `globals.css`, com `body .rdp-root` (o CSS da biblioteca carrega depois e usa os mesmos seletores).
 - Selects: sempre o `Select` (nunca `<select>` nativo). Em formulários, ligue com `Controller` (não funciona com `register`). A busca liga sozinha com mais de 8 opções; force com `searchable` em listas que crescem (clientes, materiais, produtos). Valores são texto: converta ids numéricos com `String()` / `Number()`.
@@ -123,6 +124,8 @@ materiais/
 
 - Tabela `company_settings` com uma linha só (id = 1), salva com upsert (`onDuplicateKeyUpdate`). API: `GET /api/company` (devolve `null` se não configurada) e `PUT /api/company`. Tela em `/configuracoes`, aberta pelo botão de engrenagem no cabeçalho.
 - O PDF usa nome, contato, endereço e logo da empresa; sem empresa, mostra o cabeçalho do WoodKun.
+- Condições padrão (validade em dias, forma de pagamento, prazo de entrega) ficam na empresa e são **copiadas** para o orçamento novo (validade = hoje + N dias), como os preços: mudar o padrão não altera orçamentos já feitos. Saem no PDF (bloco "Condições") e no CSV.
+- `GET /api/company` é liberado para qualquer usuário logado (o orçamento novo precisa das condições); `PUT` só com `company: ["write"]`.
 - O logo enviado é convertido para PNG e reduzido com `sharp` antes de ir para o PDF (o react-pdf não lê WebP). O tamanho no PDF é calculado pela proporção real da imagem (`objectFit`/`objectPosition` do react-pdf não funcionaram de forma confiável).
 
 ## Imagens

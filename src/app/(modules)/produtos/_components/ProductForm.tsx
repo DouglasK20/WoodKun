@@ -127,7 +127,7 @@ function ProductFormFields({ product, materials }: ProductFormFieldsProps) {
   const materialsError = errors.materials?.message ?? errors.materials?.root?.message
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="grid items-start gap-6 lg:grid-cols-3">
+    <form noValidate onSubmit={handleSubmit(onSubmit)} className="grid items-start gap-6 lg:grid-cols-3">
       <div className="space-y-6 lg:col-span-2">
         <FormSection title="Dados do produto">
           <Field label="Nome" htmlFor="name" error={errors.name?.message} className="sm:col-span-4">

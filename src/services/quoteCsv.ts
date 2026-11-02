@@ -25,6 +25,8 @@ export function buildQuoteCsv(quote: QuoteDetail) {
     row("Status", QUOTE_STATUS_LABEL[quote.status]),
     row("Data", formatDate(quote.createdAt.toISOString())),
     row("Validade", quote.validUntil ? formatDate(quote.validUntil) : ""),
+    row("Pagamento", quote.paymentTerms ?? ""),
+    row("Prazo de entrega", quote.deliveryTerms ?? ""),
     "",
     row("Descrição", "Tipo", "Quantidade", "Unidade", "Valor unitário", "Subtotal"),
     ...quote.items.map((item) =>

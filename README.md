@@ -22,7 +22,7 @@ O WoodKun ajuda a montar orçamentos de móveis planejados a partir dos materiai
 | Orçamentos: listagem com busca e filtro por status | ✅ Pronto |
 | Exportação de orçamentos em PDF e CSV | ✅ Pronto |
 | Imagens de materiais e produtos | ✅ Pronto |
-| Configurações da empresa (dados e logo no cabeçalho do PDF) | ✅ Pronto |
+| Configurações da empresa (dados e logo no cabeçalho do PDF, condições padrão do orçamento) | ✅ Pronto |
 | Login, usuários e papéis (Administrador, Compras, Vendas) | ✅ Pronto |
 
 ## Tecnologias

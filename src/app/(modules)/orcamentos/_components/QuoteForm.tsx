@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
+import { addDays, format } from "date-fns"
 import { FileSpreadsheet, FileText, Plus, Trash2 } from "lucide-react"
 
 import { DatePicker } from "@/components/form/DatePicker"
@@ -17,6 +18,7 @@ import { Skeleton } from "@/components/shadcn/skeleton"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/shadcn/table"
 import { Textarea } from "@/components/shadcn/textarea"
 import { MEASUREMENT_UNIT_SHORT, QUOTE_STATUSES, QUOTE_STATUS_LABEL } from "@/db/constants"
+import { useCompany, type CompanyResponse } from "@/hooks/queries/useCompany"
 import { useCustomers, type CustomerResponse } from "@/hooks/queries/useCustomers"
 import { useMaterials, type MaterialResponse } from "@/hooks/queries/useMaterials"
 import { useProducts, type ProductListResponse } from "@/hooks/queries/useProducts"
@@ -42,8 +44,10 @@ export function QuoteForm({ quoteId }: QuoteFormProps) {
   const customers = useCustomers()
   const materials = useMaterials()
   const products = useProducts()
+  // Condições padrão da empresa, usadas para preencher um orçamento novo
+  const company = useCompany()
 
-  const queries = [quote, customers, materials, products]
+  const queries = [quote, customers, materials, products, company]
 
   if (queries.some((query) => query.isLoading)) {
     return (
@@ -76,6 +80,7 @@ export function QuoteForm({ quoteId }: QuoteFormProps) {
       customers={customers.data ?? []}
       materials={materials.data ?? []}
       products={products.data ?? []}
+      company={company.data ?? null}
     />
   )
 }
@@ -85,9 +90,19 @@ type QuoteFormFieldsProps = {
   customers: CustomerResponse[]
   materials: MaterialResponse[]
   products: ProductListResponse[]
+  company: CompanyResponse | null
 }
 
-function QuoteFormFields({ quote, customers, materials, products }: QuoteFormFieldsProps) {
+// Orçamento novo: validade = hoje + validade padrão; pagamento e entrega = condições padrão da empresa
+function newQuoteTerms(company: CompanyResponse | null) {
+  return {
+    validUntil: company?.defaultValidityDays ? format(addDays(new Date(), company.defaultValidityDays), "yyyy-MM-dd") : "",
+    paymentTerms: company?.paymentTerms ?? "",
+    deliveryTerms: company?.deliveryTerms ?? "",
+  }
+}
+
+function QuoteFormFields({ quote, customers, materials, products, company }: QuoteFormFieldsProps) {
   const router = useRouter()
   const saveQuote = useSaveQuote()
 
@@ -105,9 +120,12 @@ function QuoteFormFields({ quote, customers, materials, products }: QuoteFormFie
       title: quote?.title ?? "",
       status: quote?.status ?? "draft",
       discount: quote?.discount ?? 0,
-      validUntil: quote?.validUntil ?? "",
       notes: quote?.notes ?? "",
       items: quote?.items ?? [],
+      // Edição: as condições salvas no orçamento. Novo: as condições padrão da empresa
+      ...(quote
+        ? { validUntil: quote.validUntil ?? "", paymentTerms: quote.paymentTerms ?? "", deliveryTerms: quote.deliveryTerms ?? "" }
+        : newQuoteTerms(company)),
     },
   })
 
@@ -144,7 +162,7 @@ function QuoteFormFields({ quote, customers, materials, products }: QuoteFormFie
   const itemsError = errors.items?.message ?? errors.items?.root?.message
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="grid items-start gap-6 lg:grid-cols-3">
+    <form noValidate onSubmit={handleSubmit(onSubmit)} className="grid items-start gap-6 lg:grid-cols-3">
       <div className="space-y-6 lg:col-span-2">
         <FormSection title="Dados do orçamento">
           <Field label="Título" htmlFor="title" error={errors.title?.message} className="sm:col-span-4">
@@ -219,7 +237,23 @@ function QuoteFormFields({ quote, customers, materials, products }: QuoteFormFie
           </Field>
 
           <Field label="Observações" htmlFor="notes" error={errors.notes?.message} className="sm:col-span-6">
-            <Textarea id="notes" rows={2} placeholder="Prazo de entrega, forma de pagamento…" {...register("notes")} />
+            <Textarea id="notes" rows={2} placeholder="Detalhes do projeto, acabamentos, combinados com o cliente…" {...register("notes")} />
+          </Field>
+        </FormSection>
+
+        <FormSection
+          title="Condições"
+          description={
+            !quote && (company?.paymentTerms || company?.deliveryTerms)
+              ? "Preenchidas com as condições padrão da empresa. Altere se este orçamento for diferente."
+              : "Saem no PDF do orçamento."
+          }
+        >
+          <Field label="Prazo de entrega" htmlFor="deliveryTerms" error={errors.deliveryTerms?.message} className="sm:col-span-6">
+            <Input id="deliveryTerms" placeholder="Ex.: 30 dias úteis após a aprovação do projeto" {...register("deliveryTerms")} />
+          </Field>
+          <Field label="Forma de pagamento" htmlFor="paymentTerms" error={errors.paymentTerms?.message} className="sm:col-span-6">
+            <Textarea id="paymentTerms" rows={2} placeholder="Ex.: 50% na aprovação e 50% na entrega" {...register("paymentTerms")} />
           </Field>
         </FormSection>
 

@@ -89,7 +89,7 @@ function MaterialFormFields({ material }: { material?: MaterialResponse }) {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="max-w-2xl space-y-5">
+    <form noValidate onSubmit={handleSubmit(onSubmit)} className="max-w-2xl space-y-5">
       <Field label="Imagem" htmlFor="imageUrl" error={errors.imageUrl?.message}>
         {/* Controller: liga ao form um componente que não é <input> nativo (não funciona com register) */}
         <Controller

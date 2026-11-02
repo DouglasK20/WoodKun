@@ -27,6 +27,9 @@ function toRow(input: CompanyInput) {
     city: input.city || null,
     state: input.state || null,
     logoUrl: input.logoUrl || null,
+    defaultValidityDays: input.defaultValidityDays,
+    paymentTerms: input.paymentTerms || null,
+    deliveryTerms: input.deliveryTerms || null,
   }
 }
 

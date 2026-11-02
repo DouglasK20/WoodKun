@@ -41,5 +41,11 @@ export const addressFields = {
   state: z.union([z.literal(""), z.enum(BRAZILIAN_STATES)], { error: "UF inválida" }),
 }
 
+// Condições comerciais (forma de pagamento e prazo de entrega): na empresa (padrão) e em cada orçamento
+export const termsFields = {
+  paymentTerms: optionalText(1000),
+  deliveryTerms: optionalText(1000),
+}
+
 export const addressSchema = z.object(addressFields)
 export type AddressInput = z.infer<typeof addressSchema>

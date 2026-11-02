@@ -62,7 +62,7 @@ function NewUserForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="max-w-2xl space-y-6">
+    <form noValidate onSubmit={handleSubmit(onSubmit)} className="max-w-2xl space-y-6">
       <FormSection title="Dados do usuário">
         <Field label="Nome" htmlFor="name" error={errors.name?.message} className="sm:col-span-3">
           <Input id="name" {...register("name")} />
@@ -127,7 +127,7 @@ function EditUserForm({ user, adminCount }: { user: UserListItem; adminCount: nu
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="max-w-2xl space-y-6">
+    <form noValidate onSubmit={handleSubmit(onSubmit)} className="max-w-2xl space-y-6">
       <FormSection title={user.name} description={user.email}>
         <Field label="Papel" htmlFor="role" error={errors.role?.message} className="sm:col-span-6">
           {/* Mudar o próprio papel poderia tirar o seu acesso a esta tela. Não usamos disabled: o react-hook-form

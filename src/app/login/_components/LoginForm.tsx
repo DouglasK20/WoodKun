@@ -51,7 +51,7 @@ export function LoginForm({ redirectTo, support }: LoginFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+    <form noValidate onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       <Field label="E-mail" htmlFor="email" error={errors.email?.message}>
         <Input id="email" type="email" autoComplete="email" autoFocus placeholder="voce@suamarcenaria.com" {...register("email")} />
       </Field>

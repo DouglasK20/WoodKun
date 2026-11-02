@@ -1,6 +1,7 @@
 import { z } from "zod"
 import { MEASUREMENT_UNITS, QUOTE_STATUSES } from "@/db/constants"
 import { calculateItemsTotal } from "@/utils/pricing"
+import { termsFields } from "./common"
 
 export const QUOTE_ITEM_TYPES = ["MATERIAL", "PRODUCT"] as const
 
@@ -37,6 +38,7 @@ export const quoteSchema = z
     // Num z.union a mensagem de erro é a da própria união, não a das opções
     validUntil: z.union([z.literal(""), z.iso.date()], { error: "Data inválida" }),
     notes: z.string().trim().max(2000, "Máximo de 2000 caracteres"),
+    ...termsFields,
     items: z.array(quoteItemSchema).min(1, "Adicione pelo menos um item"),
   })
   .refine((quote) => quote.discount <= calculateItemsTotal(quote.items), {

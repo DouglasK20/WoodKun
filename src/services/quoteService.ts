@@ -82,6 +82,8 @@ function toRow(input: QuoteInput) {
     discount: input.discount,
     validUntil: input.validUntil || null,
     notes: input.notes || null,
+    paymentTerms: input.paymentTerms || null,
+    deliveryTerms: input.deliveryTerms || null,
   }
 }
 
