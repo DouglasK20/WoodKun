@@ -98,7 +98,7 @@ materiais/
 - Todo `<form>` usa `noValidate`: quem valida é o zod (mensagens em português embaixo do campo). Sem isso, atributos como `min`/`type="email"` fazem o navegador barrar o envio antes do react-hook-form, com balões próprios (e, em abas escondidas, sem mostrar nada).
 - Listas dentro do form (ex.: materiais do produto) usam `useFieldArray`; valores calculados ao vivo usam `useWatch`.
 - Datas: sempre o `DatePicker` (nunca `<input type="date">`), ligado com `Controller`. As cores do calendário ficam no fim do `globals.css`, com `body .rdp-root` (o CSS da biblioteca carrega depois e usa os mesmos seletores).
-- Selects: sempre o `Select` (nunca `<select>` nativo). Em formulários, ligue com `Controller` (não funciona com `register`). A busca liga sozinha com mais de 8 opções; force com `searchable` em listas que crescem (clientes, materiais, produtos). Valores são texto: converta ids numéricos com `String()` / `Number()`.
+- Selects: sempre o `Select` ou, para várias opções, o `MultiSelect` (nunca `<select>` nativo). Em barras de filtro use `MultiSelect` com `summary` (texto resumido em vez de etiquetas). Em formulários, ligue com `Controller` (não funciona com `register`). A busca liga sozinha com mais de 8 opções; force com `searchable` em listas que crescem (clientes, materiais, produtos). Valores são texto: converta ids numéricos com `String()` / `Number()`.
 - Campos opcionais trafegam como `""` no form e na API; o service converte `""` em `null` antes de salvar.
 - Máscaras em `src/utils/masks.ts` (`maskPhone`, `maskDocument`, `maskZipCode`), aplicadas com `{...withMask(register("campo"), mask)}`.
 - CPF/CNPJ validados com `isValidDocument` (`src/utils/documents.ts`), que confere os dígitos verificadores.

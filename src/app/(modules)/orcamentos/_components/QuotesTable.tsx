@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react"
 
 import { DataTable } from "@/components/data_table/DataTable"
-import { Select } from "@/components/form/Select"
+import { MultiSelect } from "@/components/form/Select"
 import { Button } from "@/components/shadcn/button"
 import { Skeleton } from "@/components/shadcn/skeleton"
 import { QUOTE_STATUSES, QUOTE_STATUS_LABEL, type QuoteStatus } from "@/db/constants"
@@ -19,12 +19,13 @@ type QuotesTableProps = {
 
 export function QuotesTable({ toolbarActions }: QuotesTableProps) {
   const { data, isLoading, isError, error, refetch } = useQuotes()
-  const [status, setStatus] = useState<QuoteStatus | "">("")
+  // Nenhum marcado = todos os status
+  const [statuses, setStatuses] = useState<QuoteStatus[]>([])
 
   // useMemo: só refiltra quando os dados ou o filtro mudam (e mantém o mesmo array entre renders)
   const filtered = useMemo(
-    () => (status ? (data ?? EMPTY).filter((quote) => quote.status === status) : (data ?? EMPTY)),
-    [data, status]
+    () => (statuses.length ? (data ?? EMPTY).filter((quote) => statuses.includes(quote.status)) : (data ?? EMPTY)),
+    [data, statuses]
   )
 
   if (isLoading) {
@@ -57,17 +58,18 @@ export function QuotesTable({ toolbarActions }: QuotesTableProps) {
         columnIds: ["title", "customerName"],
         placeholder: "Buscar por título ou cliente…",
       }}
-      emptyMessage={status ? "Nenhum orçamento com esse status." : "Nenhum orçamento cadastrado."}
+      emptyMessage={statuses.length ? "Nenhum orçamento com os status selecionados." : "Nenhum orçamento cadastrado."}
       toolbarActions={
         <div className="flex items-center gap-2">
-          <Select
+          <MultiSelect
             aria-label="Filtrar por status"
             options={QUOTE_STATUSES.map((value) => ({ value, label: QUOTE_STATUS_LABEL[value] }))}
-            value={status}
-            onChange={(value) => setStatus(value as QuoteStatus | "")}
+            value={statuses}
+            onChange={(values) => setStatuses(values as QuoteStatus[])}
             placeholder="Todos os status"
-            clearable
-            className="w-48"
+            summary
+            summaryLabel={(count) => `${count} status`}
+            className="w-56"
           />
           {toolbarActions}
         </div>
