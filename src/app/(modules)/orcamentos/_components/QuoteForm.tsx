@@ -27,6 +27,7 @@ import { quoteSchema, type QuoteInput, type QuoteItemInput } from "@/schemas/quo
 import { ApiError } from "@/utils/apiClient"
 import { formatCurrency } from "@/utils/format"
 import { calculateItemsTotal, calculateQuoteTotal } from "@/utils/pricing"
+import { QuoteHistory } from "./QuoteHistory"
 
 // Atalhos de validade no calendário
 const VALIDITY_PRESETS = [
@@ -430,6 +431,8 @@ function QuoteFormFields({ quote, customers, materials, products, company }: Quo
             )}
           </section>
         )}
+
+        {quote && <QuoteHistory history={quote.history} />}
       </aside>
     </form>
   )

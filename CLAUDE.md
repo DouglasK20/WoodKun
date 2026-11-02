@@ -113,7 +113,9 @@ materiais/
 
 - Dinheiro sempre `decimal(10,2)` com `mode: "number"`, nunca `float`.
 - Itens de orçamento guardam cópia de descrição, unidade e preço do momento; não depender do preço atual do material. Cada item é `MATERIAL` (com `materialId`) ou `PRODUCT` (com `productId`, unidade `UN` e preço = preço calculado do produto).
+- Toda mudança de status (e a criação) grava uma linha em `quote_status_history` com data e quem fez (nome copiado), dentro da mesma transação do orçamento. Os services de orçamento recebem um `Actor` (usuário logado), que as rotas obtêm com `getCurrentUser()`.
 - Total do orçamento = subtotal dos itens − desconto em R$ (`calculateQuoteTotal`); o desconto não pode passar do subtotal.
+- Fuso: toda conexão do app roda `SET time_zone = '+00:00'` (`src/db/index.ts`), porque o Drizzle lê/grava `timestamp` assumindo UTC. Não criar conexões fora do `db` exportado. Na tela, horários são convertidos para o fuso do navegador (`formatDateTime`).
 - Colunas `date` usam `{ mode: "string" }` ("AAAA-MM-DD"), para o dia não mudar por fuso horário; formatar com `formatDate` (`src/utils/format.ts`).
 - Enums e labels de exibição ficam em `src/db/constants.ts` (sem importar Drizzle, para poder usar em componentes client).
 - Formatação de valores: `formatCurrency` em `src/utils/format.ts`.
@@ -152,7 +154,7 @@ materiais/
 - Gráficos com ECharts pelo componente `EChart` (`src/components/charts/EChart.tsx`), que registra só os módulos usados (`registerEChartsModules`) e desenha em SVG. Novo tipo de gráfico: registre o módulo lá e acrescente o tipo da opção em `EChartOption`.
 - Cores dos gráficos em `CHART_COLORS` (hexadecimal; o ECharts não lê variáveis CSS). Antes de criar uma cor nova de série, valide com o script do skill de dataviz (separação ≥ 8 com daltonismo e ≥ 15 em visão normal; contraste ≥ 3:1). Cores de status (verde/vermelho) não são usadas como série.
 - Todo gráfico tem legenda (2+ séries), tooltip e uma visão em tabela com os mesmos números.
-- Indicadores do Início: `GET /api/dashboard` (`dashboardService`). Comparações do mês em andamento são com o **mesmo período** do mês anterior. Não existe data de mudança de status: "aprovado no mês" = criado no mês e hoje aprovado. Salvar/excluir orçamento invalida `["dashboard"]`.
+- Indicadores do Início: `GET /api/dashboard` (`dashboardService`). Comparações do mês em andamento são com o **mesmo período** do mês anterior. "Orçado" usa a data de criação; "aprovado" e a taxa de aprovação usam a data da mudança de status (`quote_status_history`, via `approvedAt`/`rejectedAt` do `listQuotes`). Salvar/excluir orçamento invalida `["dashboard"]`.
 
 ## Exportação (PDF e CSV)
 

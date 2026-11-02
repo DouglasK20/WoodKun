@@ -171,6 +171,21 @@ export const quotes = mysqlTable("quotes", {
   ...timestamps,
 })
 
+// Histórico de status do orçamento: uma linha por mudança (e uma ao criar). Dá a data real de envio/aprovação/recusa
+export const quoteStatusHistory = mysqlTable(
+  "quote_status_history",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    quoteId: int("quote_id").notNull().references(() => quotes.id, { onDelete: "cascade" }),
+    status: mysqlEnum("status", QUOTE_STATUSES).notNull(),
+    changedAt: timestamp("changed_at").notNull().defaultNow(),
+    // Quem mudou. O nome é copiado para o histórico continuar legível se o usuário for excluído
+    changedBy: varchar("changed_by", { length: 36 }).references(() => users.id, { onDelete: "set null" }),
+    changedByName: varchar("changed_by_name", { length: 255 }),
+  },
+  (table) => [index("quote_status_history_quote_id_idx").on(table.quoteId)]
+)
+
 // Cada item guarda uma CÓPIA da descrição/unidade/valor no momento do orçamento,
 // assim mudar o preço de um material depois não altera orçamentos já feitos
 export const quoteItems = mysqlTable("quote_items", {

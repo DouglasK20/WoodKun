@@ -19,7 +19,7 @@ O WoodKun ajuda a montar orçamentos de móveis planejados a partir dos materiai
 | Produtos: cadastro com lista de materiais e cálculo do valor final | ✅ Pronto |
 | Orçamentos: itens (materiais ou produtos) com preço congelado, quantidade e valor editáveis, desconto e status | ✅ Pronto |
 | Início: painel (orçado e aprovado no mês, aguardando resposta, taxa de aprovação, gráfico mensal, orçamentos vencendo) | ✅ Pronto |
-| Orçamentos: listagem com busca e filtro por status | ✅ Pronto |
+| Orçamentos: listagem com busca e filtro por status, histórico de mudanças de status | ✅ Pronto |
 | Exportação de orçamentos em PDF e CSV | ✅ Pronto |
 | Imagens de materiais e produtos | ✅ Pronto |
 | Configurações da empresa (dados e logo no cabeçalho do PDF, condições padrão do orçamento) | ✅ Pronto |

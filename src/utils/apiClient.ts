@@ -27,7 +27,12 @@ export async function apiFetch<T>(url: string, init?: RequestInit): Promise<T> {
   return (response.status === 204 ? undefined : await response.json()) as T
 }
 
-// No JSON as datas chegam como string; este tipo reflete isso a partir do tipo do banco
-export type Json<T> = {
-  [K in keyof T]: T[K] extends Date ? string : T[K] extends Date | null ? string | null : T[K]
-}
+// No JSON as datas chegam como string; este tipo reflete isso a partir do tipo do banco,
+// inclusive dentro de listas e objetos aninhados (ex.: o histórico de status do orçamento)
+export type Json<T> = T extends Date
+  ? string
+  : T extends (infer Item)[]
+    ? Json<Item>[]
+    : T extends object
+      ? { [K in keyof T]: Json<T[K]> }
+      : T

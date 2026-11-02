@@ -43,6 +43,13 @@
       "when": 1793577249176,
       "tag": "0005_quote_conditions",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1793579039912,
+      "tag": "0006_quote_status_history",
+      "breakpoints": true
     }
   ]
 }

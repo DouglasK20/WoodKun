@@ -1,11 +1,20 @@
 // Acesso ao banco para orçamentos. Usado pela API; nunca importar em componente client
 import { asc, count, desc, eq, getTableColumns, inArray, sql } from "drizzle-orm"
 import { db } from "@/db"
-import { customers, materials, products, quoteItems, quotes } from "@/db/schema"
+import { customers, materials, products, quoteItems, quotes, quoteStatusHistory } from "@/db/schema"
 import type { QuoteInput } from "@/schemas/quote"
 import { calculateItemsTotal, calculateQuoteTotal, roundMoney } from "@/utils/pricing"
 
 // Lista com nome do cliente e subtotal calculado no banco (SUM dos itens), mais recentes primeiro
+// Quem está fazendo a alteração (vai para o histórico de status)
+export type Actor = { id: string; name: string }
+
+// Data da última vez que o orçamento entrou no status (subconsulta no histórico). null se nunca entrou
+const lastTimeIn = (status: "approved" | "rejected" | "sent") =>
+  sql<Date | null>`(select max(${quoteStatusHistory.changedAt}) from ${quoteStatusHistory} where ${quoteStatusHistory.quoteId} = ${quotes.id} and ${quoteStatusHistory.status} = ${status})`.mapWith(
+    (value) => (value ? new Date(value) : null)
+  )
+
 export async function listQuotes() {
   const rows = await db
     .select({
@@ -13,6 +22,9 @@ export async function listQuotes() {
       customerName: customers.name,
       subtotal: sql<number>`coalesce(sum(${quoteItems.quantity} * ${quoteItems.unitPrice}), 0)`.mapWith(Number),
       itemCount: count(quoteItems.id),
+      // Datas reais vindas do histórico (o painel usa para "aprovado no mês" e taxa de aprovação)
+      approvedAt: lastTimeIn("approved"),
+      rejectedAt: lastTimeIn("rejected"),
     })
     .from(quotes)
     .innerJoin(customers, eq(customers.id, quotes.customerId))
@@ -52,7 +64,18 @@ export async function getQuote(id: number) {
 
   const subtotal = calculateItemsTotal(items)
 
-  return { ...quote, items, subtotal, total: calculateQuoteTotal(subtotal, quote.discount) }
+  // Linha do tempo dos status, do mais antigo para o mais recente
+  const history = await db
+    .select({
+      status: quoteStatusHistory.status,
+      changedAt: quoteStatusHistory.changedAt,
+      changedByName: quoteStatusHistory.changedByName,
+    })
+    .from(quoteStatusHistory)
+    .where(eq(quoteStatusHistory.quoteId, id))
+    .orderBy(asc(quoteStatusHistory.changedAt), asc(quoteStatusHistory.id))
+
+  return { ...quote, items, history, subtotal, total: calculateQuoteTotal(subtotal, quote.discount) }
 }
 
 // Confere se cliente, materiais e produtos referenciados existem. Devolve o campo com problema (ou null)
@@ -101,7 +124,11 @@ function toItemRows(quoteId: number, input: QuoteInput) {
   }))
 }
 
-export async function createQuote(input: QuoteInput) {
+function historyRow(quoteId: number, status: QuoteInput["status"], actor: Actor) {
+  return { quoteId, status, changedBy: actor.id, changedByName: actor.name }
+}
+
+export async function createQuote(input: QuoteInput, actor: Actor) {
   const invalidField = await findInvalidReference(input)
   if (invalidField) return { invalidField }
 
@@ -109,14 +136,16 @@ export async function createQuote(input: QuoteInput) {
   const id = await db.transaction(async (tx) => {
     const [{ id }] = await tx.insert(quotes).values(toRow(input)).$returningId()
     await tx.insert(quoteItems).values(toItemRows(id, input))
+    // Primeiro registro do histórico: o status com que o orçamento nasceu
+    await tx.insert(quoteStatusHistory).values(historyRow(id, input.status, actor))
     return id
   })
 
   return { quote: (await getQuote(id))! }
 }
 
-export async function updateQuote(id: number, input: QuoteInput) {
-  const [existing] = await db.select({ id: quotes.id }).from(quotes).where(eq(quotes.id, id))
+export async function updateQuote(id: number, input: QuoteInput, actor: Actor) {
+  const [existing] = await db.select({ id: quotes.id, status: quotes.status }).from(quotes).where(eq(quotes.id, id))
   if (!existing) return { notFound: true as const }
 
   const invalidField = await findInvalidReference(input)
@@ -127,6 +156,8 @@ export async function updateQuote(id: number, input: QuoteInput) {
     await tx.update(quotes).set(toRow(input)).where(eq(quotes.id, id))
     await tx.delete(quoteItems).where(eq(quoteItems.quoteId, id))
     await tx.insert(quoteItems).values(toItemRows(id, input))
+    // Só registra no histórico quando o status realmente muda (editar itens ou título não conta)
+    if (existing.status !== input.status) await tx.insert(quoteStatusHistory).values(historyRow(id, input.status, actor))
   })
 
   return { quote: (await getQuote(id))! }

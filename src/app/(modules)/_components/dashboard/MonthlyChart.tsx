@@ -74,14 +74,14 @@ function buildOption(months: Month[]): EChartOption {
 export function MonthlyChart({ months }: { months: Month[] }) {
   const [view, setView] = useState<"chart" | "table">("chart")
   const option = useMemo(() => buildOption(months), [months])
-  const hasData = months.some((month) => month.quoted > 0)
+  const hasData = months.some((month) => month.quoted > 0 || month.approved > 0)
 
   return (
     <section className="space-y-4 rounded-lg border border-border bg-card p-5">
       <div className="flex items-start justify-between gap-4">
         <div>
           <h2 className="font-semibold">Orçado × aprovado</h2>
-          <p className="text-sm text-muted-foreground">Por mês de criação do orçamento, últimos {months.length} meses</p>
+          <p className="text-sm text-muted-foreground">Orçado pelo mês de criação, aprovado pelo mês da aprovação · últimos {months.length} meses</p>
         </div>
         <div className="flex rounded-md border border-border p-0.5 text-xs" role="group" aria-label="Formato">
           {(["chart", "table"] as const).map((option) => (
@@ -103,7 +103,7 @@ export function MonthlyChart({ months }: { months: Month[] }) {
 
       {!hasData ? (
         <p className="flex h-72 items-center justify-center text-sm text-muted-foreground">
-          Nenhum orçamento criado nos últimos {months.length} meses.
+          Nenhum orçamento criado ou aprovado nos últimos {months.length} meses.
         </p>
       ) : view === "chart" ? (
         <EChart option={option} ariaLabel="Gráfico de colunas com o valor orçado e o valor aprovado em cada um dos últimos meses" />

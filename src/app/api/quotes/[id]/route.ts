@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { quoteSchema } from "@/schemas/quote"
 import { deleteQuote, getQuote, updateQuote } from "@/services/quoteService"
+import { getCurrentUser } from "@/services/session"
 import { fieldError, notFound, parseBody, parseId, withAuth } from "@/utils/api"
 
 type RouteContext = {
@@ -25,7 +26,9 @@ export const PUT = withAuth(async (request: Request, { params }: RouteContext) =
   const { data, errorResponse } = await parseBody(request, quoteSchema)
   if (errorResponse) return errorResponse
 
-  const result = await updateQuote(id, data)
+  // withAuth já garantiu que há usuário logado
+  const user = (await getCurrentUser())!
+  const result = await updateQuote(id, data, { id: user.id, name: user.name })
   if (result.notFound) return notFound("Orçamento não encontrado")
   if (result.invalidField === "customerId") return fieldError("customerId", "Cliente não encontrado")
   if (result.invalidField === "items") return fieldError("items", "Algum material ou produto da lista não existe mais")

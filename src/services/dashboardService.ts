@@ -14,11 +14,12 @@ function summarize(quotes: QuoteListItem[]) {
   return { total: roundMoney(quotes.reduce((sum, quote) => sum + quote.total, 0)), count: quotes.length }
 }
 
-// Obs.: o sistema não guarda a data em que o status mudou. "Aprovado no mês" = criado no mês e hoje aprovado
+// Orçado: pela data de criação. Aprovado: pela data em que foi aprovado (histórico de status), se continua aprovado
 export async function getDashboard(now = new Date()) {
   const quotes = await listQuotes()
   const createdIn = (key: string) => quotes.filter((quote) => monthKey(quote.createdAt) === key)
-  const approvedOf = (list: QuoteListItem[]) => list.filter((quote) => quote.status === "approved")
+  const approved = quotes.filter((quote) => quote.status === "approved" && quote.approvedAt)
+  const approvedIn = (key: string) => approved.filter((quote) => monthKey(quote.approvedAt!) === key)
 
   const currentMonth = monthKey(now)
   const previousMonth = monthKey(subMonths(now, 1))
@@ -27,17 +28,22 @@ export async function getDashboard(now = new Date()) {
   // comparar o mês em andamento com o mês anterior inteiro faria todo começo de mês parecer queda
   const sameMomentLastMonth = subMonths(now, 1)
   const previous = createdIn(previousMonth).filter((quote) => quote.createdAt <= sameMomentLastMonth)
+  const approvedPrevious = approvedIn(previousMonth).filter((quote) => quote.approvedAt! <= sameMomentLastMonth)
 
   // Últimos 6 meses, do mais antigo para o atual (meses sem orçamento entram com zero)
   const monthly = Array.from({ length: MONTHS_IN_CHART }, (_, index) => {
     const key = monthKey(subMonths(startOfMonth(now), MONTHS_IN_CHART - 1 - index))
     const list = createdIn(key)
-    return { month: key, quoted: summarize(list).total, approved: summarize(approvedOf(list)).total, count: list.length }
+    return { month: key, quoted: summarize(list).total, approved: summarize(approvedIn(key)).total, count: list.length }
   })
 
-  // Taxa de aprovação: entre os decididos (aprovados + recusados) dos últimos 90 dias
+  // Taxa de aprovação: entre os decididos (aprovados + recusados) nos últimos 90 dias, pela data da decisão
   const since = subDays(now, APPROVAL_RATE_WINDOW_DAYS)
-  const decided = quotes.filter((quote) => quote.createdAt >= since && (quote.status === "approved" || quote.status === "rejected"))
+  const decided = quotes.filter(
+    (quote) =>
+      (quote.status === "approved" && quote.approvedAt && quote.approvedAt >= since) ||
+      (quote.status === "rejected" && quote.rejectedAt && quote.rejectedAt >= since)
+  )
   const approvedDecided = decided.filter((quote) => quote.status === "approved").length
 
   // Enviados esperando resposta, e os que vencem nos próximos 7 dias (ou já venceram)
@@ -61,7 +67,7 @@ export async function getDashboard(now = new Date()) {
     currentMonth,
     previousMonth,
     quoted: { ...summarize(current), previousTotal: summarize(previous).total },
-    approved: { ...summarize(approvedOf(current)), previousTotal: summarize(approvedOf(previous)).total },
+    approved: { ...summarize(approvedIn(currentMonth)), previousTotal: summarize(approvedPrevious).total },
     awaiting: summarize(awaiting),
     approvalRate: {
       approved: approvedDecided,

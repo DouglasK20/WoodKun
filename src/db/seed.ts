@@ -1,7 +1,7 @@
 // Popula o banco com dados de exemplo. Rodar com: npm run db:seed
 import { auth } from "@/services/auth"
 import { db } from "./index"
-import { customers, materials, productMaterials, products, quoteItems, quotes, users, type NewMaterial } from "./schema"
+import { customers, materials, productMaterials, products, quoteItems, quotes, quoteStatusHistory, users, type NewMaterial } from "./schema"
 
 const sampleMaterials: NewMaterial[] = [
   { name: "Chapa MDF Branco TX 15mm", description: "Chapa 2,75 x 1,85 m, dupla face", measurementUnit: "M2", unitPrice: 72.9 },
@@ -130,6 +130,10 @@ async function main() {
     await db.insert(quoteItems).values([
       { quoteId: counterId, type: "MATERIAL", materialId: counterMdf.id, description: counterMdf.name, measurementUnit: counterMdf.measurementUnit, quantity: 4.5, unitPrice: counterMdf.unitPrice },
       { quoteId: counterId, type: "MATERIAL", materialId: counterEdge.id, description: counterEdge.name, measurementUnit: counterEdge.measurementUnit, quantity: 18, unitPrice: counterEdge.unitPrice },
+    ])
+    await db.insert(quoteStatusHistory).values([
+      { quoteId: homeOfficeId, status: "sent" },
+      { quoteId: counterId, status: "draft" },
     ])
     console.log("2 orçamentos inseridos")
   } else {
